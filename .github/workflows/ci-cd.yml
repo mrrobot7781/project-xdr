@@ -1,4 +1,4 @@
-name: ASTRA-XDR CI Pipeline
+name: ASTRA-XDR CI/CD Pipeline
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
           path: coverage.xml
 
   # -------------------------------------------------------------
-  # Job 2: SonarQube Static Analysis
+  # Job 2: SonarQube Static Analysis (SAST)
   # -------------------------------------------------------------
   sonarqube:
     name: SonarQube Analysis
@@ -71,7 +71,7 @@ jobs:
             -Dsonar.sources=.
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
-# -------------------------------------------------------------
+  # -------------------------------------------------------------
   # Job 3: Build, Scan & Push Docker Image to Docker Hub
   # -------------------------------------------------------------
   docker-build-push:
@@ -83,21 +83,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. Docker Hub me Login karo
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 2. Buildx setup karo
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3. Local build karo scanning ke liye
       - name: Build Docker Image locally for Scanning
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }} .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest .
 
       - name: Run Trivy Vulnerability Scan
         uses: aquasecurity/trivy-action@master
@@ -114,14 +111,51 @@ jobs:
           name: trivy-security-report
           path: trivy-report.txt
 
+      - name: Push Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest
 
+  # -------------------------------------------------------------
+  # Job 4: DAST Scan using OWASP ZAP
+  # -------------------------------------------------------------
+  dast-scan:
+    name: OWASP ZAP DAST Scan
+    runs-on: ubuntu-latest
+    needs: docker-build-push
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build and Run Application Locally
+        run: |
+          docker build -t test-app .
+          docker run -d -p 5000:5000 --name running-app test-app
+          sleep 5
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'http://localhost:5000'
+          issue_title: 'ZAP DAST Vulnerability Report'
+          fail_action: false
+
+      - name: Stop Running Container
+        if: always()
+        run: docker stop running-app || true
+
+  # -------------------------------------------------------------
+  # Job 5: Continuous Deployment to Kubernetes
+  # -------------------------------------------------------------
   cd-deploy-k8s:
     name: Continuous Deployment to Kubernetes
-    needs: [dast-scan] # Runs after security scans complete
+    needs: dast-scan
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Kubeconfig / SSH to EC2
         uses: appleboy/ssh-action@v0.1.10
@@ -130,6 +164,5 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Pull latest k8s manifest changes and force rollout update
             kubectl apply -f https://raw.githubusercontent.com/${{ github.repository }}/main/k8s/employee-app.yaml
             kubectl rollout restart deployment/employee-app
