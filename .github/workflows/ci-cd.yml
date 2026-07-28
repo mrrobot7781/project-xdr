@@ -66,8 +66,8 @@ jobs:
           SONAR_HOST_URL: "https://sonarcloud.io" # Or your self-hosted SonarQube URL
         with:
           args: >
-            -Dsonar.projectKey=YOUR_PROJECT_KEY
-            -Dsonar.organization=YOUR_ORGANIZATION_KEY
+            -Dsonar.projectKey=mrrobot7781_project-xdr
+            -Dsonar.organization=mrrobot7781
             -Dsonar.sources=.
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
