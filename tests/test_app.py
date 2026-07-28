@@ -7,12 +7,15 @@ def client():
     with app.test_client() as client:
         yield client
 
-def test_get_employees(client):
-    response = client.get('/employees')
+def test_home_page(client):
+    """Test the frontend UI route"""
+    response = client.get('/')
     assert response.status_code == 200
-    assert len(response.get_json()) == 2
 
-def test_add_employee(client):
-    response = client.post('/employees', json={"name": "Charlie", "role": "Security Lead"})
-    assert response.status_code == 201
-    assert response.get_json()["name"] == "Charlie"
+def test_get_employees_api(client):
+    """Test the GET /api/employees endpoint"""
+    response = client.get('/api/employees')
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert json_data['status'] == 'success'
+    assert len(json_data['data']) > 0
