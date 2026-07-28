@@ -167,12 +167,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Kubeconfig / SSH to EC2
+      - name: Execute SSH commands
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}
-          username: ubuntu
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu  # Ensure this matches the user who owns minikube
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            kubectl apply -f https://raw.githubusercontent.com/${{ github.repository }}/main/k8s/employee-app.yaml
+            export KUBECONFIG=/home/ubuntu/.kube/config
+            kubectl apply -f https://raw.githubusercontent.com/mrrobot7781/project-xdr/main/k8s/employee-app.yaml
             kubectl rollout restart deployment/employee-app
