@@ -113,3 +113,23 @@ jobs:
         with:
           name: trivy-security-report
           path: trivy-report.txt
+
+
+  cd-deploy-k8s:
+    name: Continuous Deployment to Kubernetes
+    needs: [dast-scan] # Runs after security scans complete
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Kubeconfig / SSH to EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Pull latest k8s manifest changes and force rollout update
+            kubectl apply -f https://raw.githubusercontent.com/${{ github.repository }}/main/k8s/employee-app.yaml
+            kubectl rollout restart deployment/employee-app
