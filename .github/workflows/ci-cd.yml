@@ -140,7 +140,7 @@ jobs:
           target: 'http://localhost:5000'
           issue_title: 'ZAP DAST Vulnerability Report'
           fail_action: false
-          create_issue: false
+          allow_issue_writing: false
 
       - name: Stop Running Container
         if: always()
