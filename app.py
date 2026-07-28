@@ -15,7 +15,7 @@ def get_employees():
 @app.route('/employees', methods=['POST'])
 def add_employee():
     data = request.get_json()
-    if not data or 'name' not or 'role' not in data:
+    if not data or 'name' not in data or 'role' not in data:
         return jsonify({"error": "Invalid payload"}), 400
     
     new_emp = {
