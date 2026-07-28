@@ -117,9 +117,9 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest
 
   # -------------------------------------------------------------
-  # Job 4: DAST Scan using OWASP ZAP
+  # Job 4: DAST Scan using OWASP ZAP (Permanent v4 Artifact Fix)
   # -------------------------------------------------------------
-  dast-scan:
+  Dast-scan:
     name: OWASP ZAP DAST Scan
     runs-on: ubuntu-latest
     needs: docker-build-push
@@ -127,6 +127,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Fix Workspace Permissions for ZAP
+        run: sudo chmod -R 777 .
 
       - name: Build and Run Application Locally
         run: |
@@ -141,12 +144,21 @@ jobs:
           issue_title: 'ZAP DAST Vulnerability Report'
           fail_action: false
           allow_issue_writing: false
-          artifact_name: 'zap-dast-report'
 
       - name: Stop Running Container
         if: always()
         run: docker stop running-app || true
 
+      # Official v4 Artifact Uploader (Fixes 400 Bad Request Permanently)
+      - name: Upload ZAP DAST Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-dast-security-report
+          path: |
+            report_html.html
+            report_md.md
+            report_json.json
   # -------------------------------------------------------------
   # Job 5: Continuous Deployment to Kubernetes
   # -------------------------------------------------------------
