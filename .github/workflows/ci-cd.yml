@@ -60,7 +60,7 @@ jobs:
           name: coverage-report
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v2.0.2
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io" # Or your self-hosted SonarQube URL
