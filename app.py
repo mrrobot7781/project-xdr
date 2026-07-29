@@ -15,6 +15,11 @@ import os
 
 app = Flask(__name__)
 
+# FIX FOR PYTEST: Added root route '/' to resolve 404 error during CI/CD testing
+@app.route('/')
+def home():
+    return redirect('/login')
+
 # VULNERABILITY #1: Hardcoded Secret Key (Information Disclosure + Weak Session Management)
 app.secret_key = 'super-secret-key-12345-production'
 
@@ -635,4 +640,3 @@ UPLOAD_TEMPLATE = """
 if __name__ == '__main__':
     # VULNERABILITY #26: Debug mode enabled in production
     app.run(host='0.0.0.0', port=5000, debug=True)
-
