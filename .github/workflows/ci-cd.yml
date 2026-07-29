@@ -175,19 +175,18 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             export KUBECONFIG=/home/ubuntu/.kube/config
-            
-            # 1. Apply manifests and rollout restart
+
+            # 1. Apply manifests and restart rollout
             kubectl apply -f https://raw.githubusercontent.com/mrrobot7781/project-xdr/main/k8s/employee-app.yaml
             kubectl rollout restart deployment/employee-app
-            
+
             # 2. Kill existing background port-forward tunnels
             pkill -f "port-forward" || true
-            
-            # 3. Start background port-forwarding for Employee App (Port 8080)
-            nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 8080:5000 > /dev/null 2>&1 &
-            
-            # 4. Start background port-forwarding for Astra XDR Dashboard (Port 8081)
-            nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 8081:5000 > /dev/null 2>&1 &
-            
-            # 5. Verify deployment health
+            sleep 2
+
+            # 3. Start background port-forwarding with disown
+            (nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 8080:5000 > /dev/null 2>&1 &)
+            (nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 > /dev/null 2>&1 &)
+
+            # 4. Verify deployment health
             kubectl rollout status deployment/employee-app
