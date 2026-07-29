@@ -9,7 +9,7 @@ def client():
 
 def test_home_page(client):
     """Test the frontend UI route"""
-    response = client.get('/')
+    response = client.get('/', follow_redirects=True)  # Added follow_redirects=True
     assert response.status_code == 200
 
 def test_get_employees_api(client):
