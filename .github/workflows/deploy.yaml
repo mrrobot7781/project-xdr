@@ -38,13 +38,13 @@ jobs:
             kubectl apply -f dashboard-deployment.yaml
             kubectl apply -f k8s/employee-app.yaml
 
-            # Restart deployments using the CORRECT resource names
-            kubectl rollout restart deployment/employee-app-deployment
-            kubectl rollout restart deployment/astra-xdr-dashboard-deployment
+            # Restart deployments using EXACT names from your manifest output
+            kubectl rollout restart deployment/employee-app
+            kubectl rollout restart deployment/astra-xdr-dashboard
 
             # Wait for rollouts to finish
-            kubectl rollout status deployment/employee-app-deployment --timeout=60s || true
-            kubectl rollout status deployment/astra-xdr-dashboard-deployment --timeout=60s || true
+            kubectl rollout status deployment/employee-app --timeout=60s || true
+            kubectl rollout status deployment/astra-xdr-dashboard --timeout=60s || true
 
             # Clear stale listeners & restart background port forwarding
             sudo fuser -k 30081/tcp || true
