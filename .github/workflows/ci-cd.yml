@@ -174,18 +174,19 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             export KUBECONFIG=/home/ubuntu/.kube/config
-            
+
             # 1. Apply manifests and restart rollout
             kubectl apply -f https://raw.githubusercontent.com/mrrobot7781/project-xdr/main/k8s/employee-app.yaml
             kubectl rollout restart deployment/employee-app
-            
-            # 2. Kill existing background port-forward tunnels
+
+            # 2. Kill existing background port-forward processes
             pkill -f "port-forward" || true
             sleep 2
-            
-            # 3. Launch decoupled background port-forwards via systemd transient units
-            systemd-run --user --unit=k8s-emp-pf kubectl port-forward --address 0.0.0.0 svc/employee-app-service 8080:5000
-            systemd-run --user --unit=k8s-dash-pf kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000
-            
+
+            # 3. Fully decouple standard I/O streams and disown background jobs
+            nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 8080:5000 </dev/null >/dev/null 2>&1 &
+            nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 </dev/null >/dev/null 2>&1 &
+            disown -a
+
             # 4. Verify deployment health
             kubectl rollout status deployment/employee-app
