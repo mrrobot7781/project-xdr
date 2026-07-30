@@ -7,21 +7,29 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted  # <--- Direct execution on EC2!
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Verify & Heal Minikube Cluster
+      - name: Fix Kubeconfig & Heal Minikube
         run: |
+          # 1. Minikube status check aur start
           if ! minikube status | grep -q "Running"; then
+            echo "Starting Minikube..."
             minikube start --driver=docker
           fi
+
+          # 2. Context aur API Server endpoint local target par fix karo
           minikube update-context
+          kubectl config set-cluster minikube --server=https://127.0.0.1:8443 || true
 
       - name: Deploy Kubernetes Manifests
         run: |
+          # Ensure correct local config path
+          export KUBECONFIG=$HOME/.kube/config
+          
           kubectl apply -f rbac.yaml
           kubectl apply -f deployment.yaml
           kubectl apply -f dashboard-deployment.yaml
