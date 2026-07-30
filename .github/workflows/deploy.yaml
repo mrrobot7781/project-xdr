@@ -42,19 +42,18 @@ jobs:
           kubectl rollout status deployment/employee-app --timeout=60s || true
           kubectl rollout status deployment/astra-xdr-dashboard --timeout=60s || true
 
-      - name: Maintain Continuous Port Forwarding
+      - name: Maintain Background Port Forwarding
         run: |
-          export KUBECONFIG=$HOME/.kube/config
-          
-          # Clean stale processes
+          # Kill old processes safely
           sudo pkill -9 -f "port-forward" || true
-          sudo fuser -k 30081/tcp || true
-          sudo fuser -k 30082/tcp || true
+          sudo fuser -k -9 30081/tcp || true
+          sudo fuser -k -9 30082/tcp || true
           sleep 2
 
           # Start persistent background forwarding
-          (nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 30082:5000 >/dev/null 2>&1 &)
-          (nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 >/dev/null 2>&1 &)
+          nohup kubectl --kubeconfig=$HOME/.kube/config port-forward --address 0.0.0.0 svc/employee-app-service 30082:5000 > /tmp/pf-emp.log 2>&1 &
+          nohup kubectl --kubeconfig=$HOME/.kube/config port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 > /tmp/pf-dash.log 2>&1 &
 
           sleep 3
           curl -I http://localhost:30082 || true
+          curl -I http://localhost:30081 || true
