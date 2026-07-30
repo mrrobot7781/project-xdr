@@ -1,4 +1,4 @@
-name: Deploy Project XDR to EC2
+name: Deploy Project XDR to EC2 via Self-Hosted Runner
 
 on:
   push:
@@ -7,42 +7,47 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted # Self-hosted runner pe direct chalega
 
     steps:
-      - name: Deploy to EC2 via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: 54.83.90.238
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e
-            cd ~/project-xdr
-            
-            # Pull latest changes from repository
-            git pull origin main
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-            # Ensure Minikube cluster is running
-            minikube status || minikube start --driver=docker
-            minikube update-context
+      - name: Check & Heal Minikube Cluster
+        run: |
+          if ! minikube status | grep -q "Running"; then
+            echo "Minikube is down or corrupt. Resetting cluster..."
+            minikube delete --all --purge || true
+            minikube start --driver=docker
+          fi
+          minikube update-context
 
-            # Apply Kubernetes RBAC & Workloads
-            kubectl apply -f rbac.yaml
-            kubectl apply -f deployment.yaml
-            kubectl apply -f dashboard-deployment.yaml
-            kubectl apply -f k8s/employee-app.yaml
+      - name: Deploy Kubernetes Resources
+        run: |
+          kubectl apply -f rbac.yaml
+          kubectl apply -f deployment.yaml
+          kubectl apply -f dashboard-deployment.yaml
+          kubectl apply -f k8s/employee-app.yaml
 
-            # Wait for deployments to finish rollout
-            kubectl rollout status deployment/employee-app-deployment --timeout=60s || true
-            kubectl rollout status deployment/astra-xdr-dashboard-deployment --timeout=60s || true
+      - name: Wait for Pods to be Ready
+        run: |
+          kubectl rollout status deployment/employee-app-deployment --timeout=90s || true
+          kubectl rollout status deployment/astra-xdr-dashboard-deployment --timeout=90s || true
 
-            # Reset and establish background port forwarding
-            pkill -9 -f "port-forward" || true
-            sleep 2
-            
-            nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 30082:5000 >/dev/null 2>&1 &
-            nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 >/dev/null 2>&1 &
-            
-            sleep 3
-            curl -I http://localhost:30082
+      - name: Expose Services via Port-Forward
+        run: |
+          # Clean old port forwarding
+          sudo fuser -k 30081/tcp || true
+          sudo fuser -k 30082/tcp || true
+          pkill -9 -f "port-forward" || true
+          sleep 2
+
+          # Start fresh port forwarding
+          nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 30082:5000 >/dev/null 2>&1 &
+          nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 >/dev/null 2>&1 &
+          
+          sleep 3
+
+      - name: Health Check
+        run: |
+          curl -I http://localhost:30082
