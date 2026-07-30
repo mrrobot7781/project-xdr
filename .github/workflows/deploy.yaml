@@ -1,4 +1,4 @@
-name: Deploy Project XDR to EC2
+name: Deploy Project XDR to EC2 via SSH
 
 on:
   push:
@@ -7,28 +7,26 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted # Running directly on your EC2 self-hosted runner
+    runs-on: ubuntu-latest # Runs on GitHub's free cloud servers
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 54.83.90.238
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/project-xdr
+            git pull origin main
 
-      - name: Deploy Kubernetes Manifests
-        run: |
-          kubectl apply -f rbac.yaml
-          kubectl apply -f deployment.yaml
-          kubectl apply -f dashboard-deployment.yaml
-          kubectl apply -f k8s/employee-app.yaml
+            # Apply Kubernetes Resources
+            kubectl apply -f rbac.yaml
+            kubectl apply -f deployment.yaml
+            kubectl apply -f dashboard-deployment.yaml
+            kubectl apply -f k8s/employee-app.yaml
 
-      - name: Maintain Background Port Forwarding
-        run: |
-          # Kill old background forwards
-          pkill -9 -f "port-forward" || true
-
-          # Wait for pods to be ready
-          kubectl wait --for=condition=ready pod -l app=employee-app --timeout=60s
-          kubectl wait --for=condition=ready pod -l app=astra-xdr-dashboard --timeout=60s
-
-          # Start background port forwarding
-          nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 30082:5000 >/dev/null 2>&1 &
-          nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 >/dev/null 2>&1 &
+            # Restart Port-Forwarding
+            pkill -9 -f "port-forward" || true
+            nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 30082:5000 >/dev/null 2>&1 &
+            nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 >/dev/null 2>&1 &
