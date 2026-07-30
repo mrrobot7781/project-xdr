@@ -174,18 +174,12 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             export KUBECONFIG=/home/ubuntu/.kube/config
-
-            # 1. Apply manifests and rollout restart
+            
+            # 1. Apply updated NodePort manifests
             kubectl apply -f https://raw.githubusercontent.com/mrrobot7781/project-xdr/main/k8s/employee-app.yaml
+            
+            # 2. Restart deployment to load fresh image
             kubectl rollout restart deployment/employee-app
-
-            # 2. Kill existing background port-forwards
-            pkill -f "port-forward" || true
-            sleep 2
-
-            # 3. Schedule port-forwards via 'at' daemon (runs immediately in isolated process)
-            echo "KUBECONFIG=/home/ubuntu/.kube/config kubectl port-forward --address 0.0.0.0 svc/employee-app-service 8080:5000 >/dev/null 2>&1" | at now
-            echo "KUBECONFIG=/home/ubuntu/.kube/config kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 >/dev/null 2>&1" | at now
-
-            # 4. Verify deployment health
+            
+            # 3. Verify deployment health
             kubectl rollout status deployment/employee-app
