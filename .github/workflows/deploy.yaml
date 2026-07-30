@@ -13,17 +13,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Ensure Minikube Cluster is Running
+      - name: Ensure Minikube Cluster & Local Kubeconfig
         run: |
-          # Check if minikube is running, if not start it
+          export KUBECONFIG=$HOME/.kube/config
           if ! minikube status | grep -q "Running"; then
-            echo "Minikube stopped/unhealthy. Starting minikube..."
+            echo "Starting Minikube..."
             minikube start --driver=docker
           fi
           minikube update-context
 
       - name: Deploy Kubernetes Manifests
         run: |
+          export KUBECONFIG=$HOME/.kube/config
           kubectl apply -f rbac.yaml
           kubectl apply -f deployment.yaml
           kubectl apply -f dashboard-deployment.yaml
@@ -31,10 +32,12 @@ jobs:
 
       - name: Restart Workloads
         run: |
+          export KUBECONFIG=$HOME/.kube/config
           kubectl rollout restart deployment/employee-app
           kubectl rollout restart deployment/astra-xdr-dashboard
 
       - name: Verify Rollout Status
         run: |
+          export KUBECONFIG=$HOME/.kube/config
           kubectl rollout status deployment/employee-app --timeout=60s || true
           kubectl rollout status deployment/astra-xdr-dashboard --timeout=60s || true
