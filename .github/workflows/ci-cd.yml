@@ -175,18 +175,17 @@ jobs:
           script: |
             export KUBECONFIG=/home/ubuntu/.kube/config
 
-            # 1. Apply manifests and restart rollout
+            # 1. Apply manifests and rollout restart
             kubectl apply -f https://raw.githubusercontent.com/mrrobot7781/project-xdr/main/k8s/employee-app.yaml
             kubectl rollout restart deployment/employee-app
 
-            # 2. Kill existing background port-forward processes
+            # 2. Kill existing background port-forwards
             pkill -f "port-forward" || true
             sleep 2
 
-            # 3. Fully decouple standard I/O streams and disown background jobs
-            nohup kubectl port-forward --address 0.0.0.0 svc/employee-app-service 8080:5000 </dev/null >/dev/null 2>&1 &
-            nohup kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 </dev/null >/dev/null 2>&1 &
-            disown -a
+            # 3. Schedule port-forwards via 'at' daemon (runs immediately in isolated process)
+            echo "KUBECONFIG=/home/ubuntu/.kube/config kubectl port-forward --address 0.0.0.0 svc/employee-app-service 8080:5000 >/dev/null 2>&1" | at now
+            echo "KUBECONFIG=/home/ubuntu/.kube/config kubectl port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 >/dev/null 2>&1" | at now
 
             # 4. Verify deployment health
             kubectl rollout status deployment/employee-app
