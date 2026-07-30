@@ -44,16 +44,16 @@ jobs:
 
       - name: Maintain Background Port Forwarding
         run: |
-          # Kill old processes safely
+          # Clean old port forwards
           sudo pkill -9 -f "port-forward" || true
+          sudo fuser -k -9 30080/tcp || true
           sudo fuser -k -9 30081/tcp || true
-          sudo fuser -k -9 30082/tcp || true
           sleep 2
 
-          # Start persistent background forwarding
-          nohup kubectl --kubeconfig=$HOME/.kube/config port-forward --address 0.0.0.0 svc/employee-app-service 30082:5000 > /tmp/pf-emp.log 2>&1 &
-          nohup kubectl --kubeconfig=$HOME/.kube/config port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 > /tmp/pf-dash.log 2>&1 &
+          # Start persistent background processes
+          nohup kubectl --kubeconfig=$HOME/.kube/config port-forward --address 0.0.0.0 svc/employee-app-service 30080:5000 > /tmp/emp.log 2>&1 &
+          nohup kubectl --kubeconfig=$HOME/.kube/config port-forward --address 0.0.0.0 svc/astra-xdr-dashboard-service 30081:5000 > /tmp/dash.log 2>&1 &
 
           sleep 3
-          curl -I http://localhost:30082 || true
+          curl -I http://localhost:30080 || true
           curl -I http://localhost:30081 || true
