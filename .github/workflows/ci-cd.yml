@@ -66,8 +66,8 @@ jobs:
           SONAR_HOST_URL: "https://sonarcloud.io"
         with:
           args: >
-            -Dsonar.projectKey=xdr-project
-            -Dsonar.organization=double-script
+            -Dsonar.projectKey=mrrobot7781_project-xdr
+            -Dsonar.organization=mrrobot7781
             -Dsonar.sources=.
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
