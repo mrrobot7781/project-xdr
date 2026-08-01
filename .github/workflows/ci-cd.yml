@@ -187,11 +187,11 @@ jobs:
 
             kubectl apply -f k8s/employee-app.yaml
 
-            kubectl rollout restart deployment/employee-app
-            kubectl rollout restart deployment/astra-xdr-dashboard
+            kubectl rollout restart deployment/employee-app-service
+            kubectl rollout restart deployment/astra-xdr-dashboard-service
 
-            kubectl rollout status deployment/employee-app --timeout=120s
-            kubectl rollout status deployment/astra-xdr-dashboard --timeout=120s
+            kubectl rollout status deployment/employee-app-service --timeout=120s
+            kubectl rollout status deployment/astra-xdr-dashboard-service --timeout=120s
 
             echo "Waiting for rollout..."
             sleep 30
