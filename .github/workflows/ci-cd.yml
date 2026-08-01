@@ -66,8 +66,8 @@ jobs:
           SONAR_HOST_URL: "https://sonarcloud.io"
         with:
           args: >
-            -Dsonar.projectKey=mrrobot7781_project-xdr
-            -Dsonar.organization=mrrobot7781
+            -Dsonar.projectKey=xdr-project
+            -Dsonar.organization=double-script
             -Dsonar.sources=.
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
@@ -174,12 +174,43 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             export KUBECONFIG=/home/ubuntu/.kube/config
-            
-            # 1. Apply updated NodePort manifests
-            kubectl apply -f https://raw.githubusercontent.com/mrrobot7781/project-xdr/main/k8s/employee-app.yaml
-            
-            # 2. Restart deployment to load fresh image
+
+            cd /home/ubuntu/project-xdr
+
+            git pull origin main
+
+            kubectl apply -f rbac.yaml
+
+            kubectl apply -f deployment.yaml
+
+            kubectl apply -f dashboard-deployment.yaml
+
+            kubectl apply -f k8s/employee-app.yaml
+
             kubectl rollout restart deployment/employee-app
-            
-            # 3. Verify deployment health
-            kubectl rollout status deployment/employee-app
+            kubectl rollout restart deployment/astra-xdr-dashboard
+
+            kubectl rollout status deployment/employee-app --timeout=120s
+            kubectl rollout status deployment/astra-xdr-dashboard --timeout=120s
+
+            echo "Waiting for rollout..."
+            sleep 30
+
+            chmod +x /home/ubuntu/start-port-forward.sh
+
+            sudo systemctl restart xdr-portforward
+
+            sleep 10
+
+            echo "===== SERVICE STATUS ====="
+            sudo systemctl status xdr-portforward --no-pager
+
+            echo "===== PORTS ====="
+            sudo ss -tulpn | grep 30081 || true
+            sudo ss -tulpn | grep 30082 || true
+
+            echo "===== DASHBOARD LOG ====="
+            cat /tmp/pf-dashboard.log || true
+
+            echo "===== EMPLOYEE LOG ====="
+            cat /tmp/pf-employee.log || true
