@@ -5,7 +5,7 @@ from functools import wraps
 
 app = Flask(__name__)
 alerts = []
-latest_ai_report = None  # Global variable to store the latest AI summary
+latest_ai_report = None
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "AstraXdr@2026"
@@ -29,7 +29,6 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-# Load Kubernetes Configuration
 try:
     config.load_incluster_config()
     k8s_v1 = client.CoreV1Api()
@@ -40,7 +39,6 @@ except Exception as e:
     k8s_enabled = False
 
 def get_pod_metrics():
-    """Fetch individual running pods and their live CPU/Memory utilization."""
     if not k8s_enabled:
         return []
     
@@ -48,7 +46,6 @@ def get_pod_metrics():
     try:
         pods = k8s_v1.list_namespaced_pod(namespace="default")
         
-        # Pull live pod metrics from K8s Metrics Server API
         metrics_dict = {}
         try:
             pod_metrics = k8s_custom.list_namespaced_custom_object(
@@ -57,7 +54,7 @@ def get_pod_metrics():
             for m in pod_metrics.get('items', []):
                 metrics_dict[m['metadata']['name']] = m
         except Exception:
-            pass # Metrics server might be syncing
+            pass
 
         for pod in pods.items:
             pod_name = pod.metadata.name
@@ -70,20 +67,16 @@ def get_pod_metrics():
                     cpu_str = container['usage']['cpu']
                     mem_str = container['usage']['memory']
                     
-                    # Parse CPU (convert cores/nanocores to millicores)
                     if cpu_str.endswith('n'):
                         cpu_val += int(cpu_str[:-1]) // 1000000
                     elif cpu_str.endswith('m'):
                         cpu_val += int(cpu_str[:-1])
                     
-                    # Parse Memory (convert Ki/Mi to MB)
                     if mem_str.endswith('Ki'):
                         mem_val += int(mem_str[:-2]) // 1024
                     elif mem_str.endswith('Mi'):
                         mem_val += int(mem_str[:-2])
 
-            # Calculate width percentages for the UI visual bars
-            # Assuming 500mCPU and 512MiB as a "full" bar for visual scaling purposes
             cpu_pct = min((cpu_val / 500) * 100, 100) if cpu_val > 0 else 0
             mem_pct = min((mem_val / 512) * 100, 100) if mem_val > 0 else 0
 
@@ -106,152 +99,170 @@ HTML_TEMPLATE = """
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASTRA-XDR | SOC Threat Center</title>
     <meta http-equiv="refresh" content="10">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
         :root {
-            --bg-primary: #0a0e1a;
-            --bg-secondary: #101621;
-            --card-bg: rgba(20, 28, 44, 0.6);
-            --card-border: rgba(255, 255, 255, 0.05);
-            --card-border-hover: rgba(0, 242, 254, 0.2);
+            --bg-dark: #0d1117;
+            --bg-darker: #010409;
+            --surface: #161b22;
+            --surface-light: #21262d;
+            --border: #30363d;
+            --border-light: #444c56;
             
-            --accent-cyan: #00f2fe;
-            --accent-cyan-dim: rgba(0, 242, 254, 0.1);
-            --accent-green: #00e676;
-            --accent-green-dim: rgba(0, 230, 118, 0.1);
-            --accent-red: #ff5252;
-            --accent-red-dim: rgba(255, 82, 82, 0.1);
-            --accent-orange: #ff9100;
-            --accent-orange-dim: rgba(255, 145, 0, 0.1);
-            --accent-purple: #d946ef;
+            --brand-primary: #58a6ff;
+            --brand-secondary: #1f6feb;
+            --success: #3fb950;
+            --danger: #da3633;
+            --warning: #d29922;
+            --info: #58a6ff;
             
-            --text-primary: #f3f4f6;
-            --text-secondary: #d1d5db;
-            --text-muted: #9ca3af;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-tertiary: #6e7681;
+        }
+
+        html {
+            font-size: 16px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            background-attachment: fixed;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
             color: var(--text-primary);
-            margin: 0;
-            padding: 40px;
+            line-height: 1.6;
             min-height: 100vh;
         }
 
-        /* Glassmorphic cards */
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Utilities */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
         }
 
-        .card:hover {
-            border-color: var(--card-border-hover);
-            box-shadow: 0 12px 48px rgba(0, 242, 254, 0.1);
+        @media (min-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
         }
 
-        /* Header with threat level indicator */
+        @media (min-width: 1024px) {
+            .container {
+                padding: 2.5rem;
+            }
+        }
+
+        /* Header */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 40px;
-            gap: 30px;
-            flex-wrap: wrap;
+            margin-bottom: 2rem;
         }
 
-        .header-left h1 {
-            font-size: 32px;
+        .header__top {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .header__top {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 2rem;
+            }
+        }
+
+        .header__title {
+            flex: 1;
+        }
+
+        .header__title h1 {
+            font-size: 1.75rem;
             font-weight: 700;
-            margin: 0 0 8px 0;
-            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #d946ef 100%);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: -0.5px;
         }
 
-        .header-left p {
-            margin: 0;
-            font-size: 14px;
-            color: var(--text-muted);
+        @media (min-width: 768px) {
+            .header__title h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        .header__subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
-        .threat-indicator {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .header__stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
-        .threat-gauge {
-            width: 180px;
-            padding: 16px;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
+        @media (min-width: 768px) {
+            .header__stats {
+                grid-template-columns: auto auto;
+                gap: 2rem;
+                flex-shrink: 0;
+            }
+        }
+
+        .stat-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 12px;
+            padding: 1.25rem;
             text-align: center;
+            transition: all 0.3s ease;
         }
 
-        .threat-level {
-            font-size: 28px;
+        .stat-box:hover {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.15);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
             font-weight: 700;
-            font-family: 'Space Mono', monospace;
-            margin: 0;
+            font-family: 'JetBrains Mono', monospace;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 0.5rem;
         }
 
-        .threat-level.critical { color: var(--accent-red); }
-        .threat-level.high { color: var(--accent-orange); }
-        .threat-level.medium { color: #fbbf24; }
-        .threat-level.low { color: var(--accent-green); }
-
-        .threat-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: var(--accent-green-dim);
-            color: var(--accent-green);
-            border: 1px solid rgba(0, 230, 118, 0.3);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .pulse {
-            width: 6px;
-            height: 6px;
-            background: var(--accent-green);
+        .status-dot {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
+            background: var(--success);
             animation: pulse 2s infinite;
-            box-shadow: 0 0 10px var(--accent-green);
+            box-shadow: 0 0 8px var(--success);
         }
 
         @keyframes pulse {
@@ -259,227 +270,264 @@ HTML_TEMPLATE = """
             50% { opacity: 0.5; }
         }
 
-        /* Pod Grid */
+        .stat-value.critical { color: var(--danger); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.success { color: var(--success); }
+
+        /* Section Title */
         .section-title {
-            font-size: 16px;
+            font-size: 1.25rem;
             font-weight: 700;
-            margin: 40px 0 20px 0;
+            margin: 2rem 0 1.5rem 0;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.75rem;
         }
 
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 1.5rem;
+                margin-top: 2.5rem;
+                margin-bottom: 1.75rem;
+            }
+        }
+
+        /* Pod Grid */
         .pod-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
         }
 
-        .pod-card {
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+        @media (min-width: 640px) {
+            .pod-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        .pod-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-cyan), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        @media (min-width: 1024px) {
+            .pod-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
-        .pod-card:hover::before {
-            opacity: 1;
+        @media (min-width: 1400px) {
+            .pod-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
-        .pod-header {
+        /* Card */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Pod Card */
+        .pod-card__header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 16px;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
         }
 
-        .pod-name {
-            font-size: 13px;
-            font-family: 'Space Mono', monospace;
-            color: var(--accent-cyan);
-            font-weight: 700;
+        .pod-card__name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--brand-primary);
             word-break: break-all;
             flex: 1;
-            margin-right: 12px;
+            min-width: 0;
         }
 
-        .pod-status-badge {
+        .pod-card__status {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 0.375rem 0.75rem;
             border-radius: 6px;
-            font-size: 10px;
-            font-weight: 700;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             white-space: nowrap;
-            flex-shrink: 0;
         }
 
-        .status-running {
-            background: var(--accent-green-dim);
-            color: var(--accent-green);
-            border: 1px solid rgba(0, 230, 118, 0.3);
+        .pod-card__status.running {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(63, 185, 80, 0.3);
         }
 
-        .status-pending {
-            background: var(--accent-orange-dim);
-            color: var(--accent-orange);
-            border: 1px solid rgba(255, 145, 0, 0.3);
+        .pod-card__status.pending {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(210, 153, 34, 0.3);
         }
 
-        .status-error {
-            background: var(--accent-red-dim);
-            color: var(--accent-red);
-            border: 1px solid rgba(255, 82, 82, 0.3);
+        .pod-card__status.error {
+            background: rgba(218, 54, 51, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(218, 54, 51, 0.3);
         }
 
-        .metric-row {
-            margin-bottom: 18px;
+        .metric {
+            margin-bottom: 1.5rem;
         }
 
-        .metric-row:last-child {
+        .metric:last-child {
             margin-bottom: 0;
         }
 
-        .metric-header {
+        .metric__header {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 8px;
+            align-items: center;
+            margin-bottom: 0.5rem;
         }
 
-        .metric-label {
-            font-size: 12px;
-            color: var(--text-muted);
+        .metric__label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
-        .metric-value {
-            font-family: 'Space Mono', monospace;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-primary);
+        .metric__value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--brand-primary);
         }
 
-        .metric-bar {
+        .metric__bar {
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.05);
+            height: 6px;
+            background: var(--border);
             border-radius: 6px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .metric-fill {
+        .metric__fill {
             height: 100%;
-            border-radius: 4px;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .metric-fill.cpu {
-            background: linear-gradient(90deg, #00e676, #00b0ff);
+        .metric__fill.cpu {
+            background: linear-gradient(90deg, #3fb950, #1f6feb);
         }
 
-        .metric-fill.mem {
-            background: linear-gradient(90deg, #00f2fe, #d946ef);
+        .metric__fill.memory {
+            background: linear-gradient(90deg, #58a6ff, #da3633);
         }
 
-        /* Alerts Table */
-        .table-card {
-            padding: 28px;
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 2rem;
         }
 
-        .table-card h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 16px;
+        .card-table {
+            padding: 1.5rem;
+        }
+
+        .card-table h3 {
+            font-size: 1.125rem;
             font-weight: 700;
+            margin-bottom: 1.5rem;
             color: var(--text-primary);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: var(--surface-light);
+            border-bottom: 2px solid var(--border);
         }
 
         th {
             text-align: left;
-            padding: 12px 16px;
-            color: var(--text-muted);
+            padding: 1rem;
+            color: var(--text-secondary);
             font-weight: 600;
-            border-bottom: 1px solid var(--card-border);
             text-transform: uppercase;
-            font-size: 11px;
+            font-size: 0.75rem;
             letter-spacing: 0.5px;
         }
 
         td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--card-border);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        tbody tr:hover {
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .cell-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
             color: var(--text-secondary);
         }
 
-        tr:hover {
-            background: rgba(0, 242, 254, 0.02);
-        }
-
-        .time-cell {
-            font-family: 'Space Mono', monospace;
-            color: var(--text-muted);
-            font-size: 12px;
+        .cell-priority {
+            display: inline-block;
         }
 
         .priority-badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 0.375rem 0.75rem;
             border-radius: 6px;
-            font-weight: 700;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-transform: uppercase;
-            font-size: 10px;
             letter-spacing: 0.5px;
         }
 
-        .priority-critical {
-            background: var(--accent-red-dim);
-            color: var(--accent-red);
-            border: 1px solid rgba(255, 82, 82, 0.3);
+        .priority-badge.critical {
+            background: rgba(218, 54, 51, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(218, 54, 51, 0.3);
         }
 
-        .priority-warning {
-            background: var(--accent-orange-dim);
-            color: var(--accent-orange);
-            border: 1px solid rgba(255, 145, 0, 0.3);
+        .priority-badge.warning {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(210, 153, 34, 0.3);
         }
 
-        .priority-low {
-            background: rgba(100, 200, 255, 0.1);
-            color: #64c8ff;
-            border: 1px solid rgba(100, 200, 255, 0.3);
+        .priority-badge.notice {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--brand-primary);
+            border: 1px solid rgba(88, 166, 255, 0.3);
         }
 
-        .pod-name-cell {
-            font-family: 'Space Mono', monospace;
-            color: var(--accent-cyan);
+        .cell-pod {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--brand-primary);
             font-weight: 600;
         }
 
-        .rule-cell {
-            font-family: 'Space Mono', monospace;
-            font-size: 12px;
+        .cell-rule {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
 
@@ -487,32 +535,30 @@ HTML_TEMPLATE = """
             color: var(--text-primary);
             font-weight: 600;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 0.25rem;
         }
 
-        .remediation-action {
-            display: flex;
-            gap: 8px;
+        .cell-action {
+            text-align: center;
         }
 
         .btn-isolate {
-            background: linear-gradient(135deg, var(--accent-red) 0%, #d50000 100%);
+            background: linear-gradient(135deg, var(--danger), #9e2c2c);
             color: white;
             border: none;
-            padding: 8px 14px;
-            font-weight: 600;
+            padding: 0.5rem 1rem;
             border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(255, 82, 82, 0.25);
+            letter-spacing: 0.5px;
         }
 
         .btn-isolate:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(255, 82, 82, 0.4);
+            box-shadow: 0 4px 12px rgba(218, 54, 51, 0.3);
         }
 
         .btn-isolate:active {
@@ -522,151 +568,145 @@ HTML_TEMPLATE = """
         .isolated-tag {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            color: var(--accent-green);
-            font-weight: 700;
+            gap: 0.5rem;
+            color: var(--success);
+            font-weight: 600;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            font-size: 11px;
             letter-spacing: 0.5px;
         }
 
         .checkmark {
-            display: inline-block;
             width: 16px;
             height: 16px;
-            background: var(--accent-green);
+            background: var(--success);
             border-radius: 3px;
-            color: var(--bg-primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            color: var(--bg-dark);
+            font-size: 0.75rem;
             font-weight: 700;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        /* AI Report */
-        .ai-report-body {
-            line-height: 1.7;
-            font-size: 13px;
+            padding: 2rem 1rem;
             color: var(--text-secondary);
         }
 
-        .ai-report-body h1,
-        .ai-report-body h2,
-        .ai-report-body h3 {
-            color: var(--accent-cyan);
-            margin-top: 16px;
-            margin-bottom: 10px;
+        .empty-state__icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .empty-state__text {
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* AI Report */
+        .ai-report {
+            line-height: 1.8;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .ai-report h1 {
+            font-size: 1.5rem;
+            color: var(--brand-primary);
+            margin: 1.5rem 0 1rem 0;
             font-weight: 700;
         }
 
-        .ai-report-body h1 { font-size: 18px; }
-        .ai-report-body h2 { font-size: 15px; }
-        .ai-report-body h3 { font-size: 13px; }
-
-        .ai-report-body code {
-            font-family: 'Space Mono', monospace;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: var(--accent-orange);
-            font-size: 12px;
+        .ai-report h2 {
+            font-size: 1.25rem;
+            color: var(--brand-primary);
+            margin: 1.25rem 0 0.75rem 0;
+            font-weight: 700;
         }
 
-        .ai-report-body pre {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 12px 16px;
+        .ai-report h3 {
+            font-size: 1.1rem;
+            color: var(--brand-primary);
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 700;
+        }
+
+        .ai-report code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--surface-light);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            color: var(--brand-primary);
+            font-size: 0.85rem;
+        }
+
+        .ai-report pre {
+            background: var(--surface-light);
+            padding: 1rem;
             border-radius: 8px;
             overflow-x: auto;
-            border: 1px solid var(--card-border);
-            font-size: 12px;
-            font-family: 'Space Mono', monospace;
-            color: #64ff64;
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--success);
             line-height: 1.5;
         }
 
-        .ai-report-body ul,
-        .ai-report-body ol {
-            padding-left: 20px;
-            margin: 10px 0;
+        .ai-report ul,
+        .ai-report ol {
+            padding-left: 1.5rem;
+            margin: 0.75rem 0;
         }
 
-        .ai-report-body li {
-            margin-bottom: 6px;
+        .ai-report li {
+            margin-bottom: 0.5rem;
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .pod-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
+        .ai-report p {
+            margin: 0.75rem 0;
         }
 
+        /* Responsive Table */
         @media (max-width: 768px) {
-            body {
-                padding: 20px;
-            }
-
-            .header {
-                flex-direction: column;
-            }
-
-            .header-left h1 {
-                font-size: 24px;
-            }
-
-            .pod-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .threat-gauge {
-                width: 100%;
-            }
-
             table {
-                font-size: 12px;
+                font-size: 0.75rem;
             }
 
-            td, th {
-                padding: 10px 12px;
+            th, td {
+                padding: 0.75rem;
             }
 
             .btn-isolate {
-                padding: 6px 10px;
-                font-size: 11px;
+                padding: 0.375rem 0.75rem;
+                font-size: 0.7rem;
+            }
+
+            .cell-rule {
+                max-width: 150px;
+                word-break: break-word;
             }
         }
 
-        /* Empty state animation */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+        /* No pods state */
+        .pod-grid.empty {
+            grid-template-columns: 1fr;
         }
 
-        .empty-state-icon {
-            animation: float 3s ease-in-out infinite;
+        /* Spacing adjustments */
+        .no-bottom-margin {
+            margin-bottom: 0;
         }
     </style>
     <script>
-        function getThreatLevel() {
-            const alerts_count = {{ alerts | length }};
-            if (alerts_count > 10) return 'critical';
-            if (alerts_count > 5) return 'high';
-            if (alerts_count > 2) return 'medium';
-            return 'low';
-        }
-
         function remediatePod(podName, alertIndex) {
             if (confirm("Execute remediation: Terminate and isolate pod [" + podName + "]?")) {
                 fetch('/api/pod/remediate', {
@@ -684,149 +724,157 @@ HTML_TEMPLATE = """
     </script>
 </head>
 <body>
-
-    <div class="header">
-        <div class="header-left">
-            <h1>🛡️ ASTRA-XDR</h1>
-            <p>Extended Detection & Response · Real-Time Threat Operations</p>
-        </div>
-        <div class="threat-indicator">
-            <div class="threat-gauge">
-                {% set threat_level = 'critical' if alerts | length > 10 else 'high' if alerts | length > 5 else 'medium' if alerts | length > 2 else 'low' %}
-                <p class="threat-level {{ threat_level }}">
-                    {% if threat_level == 'critical' %}
-                        🔴 CRITICAL
-                    {% elif threat_level == 'high' %}
-                        🟠 HIGH
-                    {% elif threat_level == 'medium' %}
-                        🟡 MEDIUM
-                    {% else %}
-                        🟢 LOW
-                    {% endif %}
-                </p>
-                <p class="threat-label">Threat Level</p>
-            </div>
-            <div class="status-badge">
-                <span class="pulse"></span>
-                Live Monitoring
-            </div>
-        </div>
-    </div>
-
-    <!-- Pod Telemetry -->
-    <h2 class="section-title">📦 Cluster Health</h2>
-    <div class="pod-grid">
-        {% for pod in pods %}
-        <div class="card pod-card">
-            <div class="pod-header">
-                <div class="pod-name">{{ pod.name }}</div>
-                <div class="pod-status-badge status-{{ pod.status|lower }}">{{ pod.status }}</div>
-            </div>
-            
-            <div class="metric-row">
-                <div class="metric-header">
-                    <span class="metric-label">CPU</span>
-                    <span class="metric-value">{{ pod.cpu }} mC</span>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header__top">
+                <div class="header__title">
+                    <h1>🛡️ ASTRA-XDR</h1>
+                    <p class="header__subtitle">Extended Detection & Response | Real-Time Security Operations</p>
                 </div>
-                <div class="metric-bar">
-                    <div class="metric-fill cpu" style="width: {{ pod.cpu_pct }}%;"></div>
-                </div>
-            </div>
-
-            <div class="metric-row">
-                <div class="metric-header">
-                    <span class="metric-label">Memory</span>
-                    <span class="metric-value">{{ pod.mem }} MiB</span>
-                </div>
-                <div class="metric-bar">
-                    <div class="metric-fill mem" style="width: {{ pod.mem_pct }}%;"></div>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div style="grid-column: 1/-1;">
-            <div class="card" style="padding: 40px; text-align: center;">
-                <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <p>No active pods detected in cluster</p>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Security Incidents -->
-    <h2 class="section-title">⚠️ Runtime Security Events</h2>
-    <div class="card table-card">
-        <h3>Detected Anomalies & SOAR Actions</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 15%;">Timestamp</th>
-                    <th style="width: 10%;">Priority</th>
-                    <th style="width: 15%;">Target</th>
-                    <th style="width: 40%;">Security Rule & Context</th>
-                    <th style="width: 20%;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for a in alerts %}
-                <tr>
-                    <td class="time-cell">{{ a.time }}</td>
-                    <td>
-                        <span class="priority-badge {% if a.priority in ['Critical', 'Error'] %}priority-critical{% elif a.priority == 'Warning' %}priority-warning{% else %}priority-low{% endif %}">
-                            {{ a.priority }}
-                        </span>
-                    </td>
-                    <td class="pod-name-cell">{{ a.pod or '—' }}</td>
-                    <td class="rule-cell">
-                        <span class="rule-name">{{ a.rule }}</span>
-                        {{ a.output }}
-                    </td>
-                    <td>
-                        {% if a.remediated %}
-                            <span class="isolated-tag">
-                                <span class="checkmark">✓</span> ISOLATED
-                            </span>
-                        {% elif a.pod and a.pod != 'Unknown' %}
-                            <button class="btn-isolate" onclick="remediatePod('{{ a.pod }}', {{ loop.index0 }})">Isolate</button>
-                        {% else %}
-                            <span style="color: var(--text-muted); font-size: 12px;">—</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">✓</div>
-                            <p>No threats detected. Cluster operating in secure state.</p>
+                <div class="header__stats">
+                    {% set threat_level = 'critical' if alerts | length > 10 else 'warning' if alerts | length > 5 else 'success' %}
+                    <div class="stat-box">
+                        <div class="stat-label">Threat Level</div>
+                        <div class="stat-value {{ threat_level }}">
+                            {% if threat_level == 'critical' %}🔴 CRITICAL
+                            {% elif threat_level == 'warning' %}🟠 HIGH
+                            {% else %}🟢 LOW
+                            {% endif %}
                         </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- AI Report -->
-    <h2 class="section-title">🤖 AI Security Analysis</h2>
-    <div class="card table-card">
-        <h3>Automated DevSecOps Scan Results</h3>
-        {% if ai_report %}
-            <div id="ai-report-content" class="ai-report-body"></div>
-            <script>
-                const rawMarkdown = {{ ai_report | tojson }};
-                document.getElementById('ai-report-content').innerHTML = marked.parse(rawMarkdown);
-            </script>
-        {% else %}
-            <div class="empty-state" style="padding: 30px;">
-                <div class="empty-state-icon">📊</div>
-                <p>No scan reports received yet. Integrate Trivy, SonarQube, and OWASP ZAP via CI/CD pipeline.</p>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">System Status</div>
+                        <div class="stat-value">
+                            <span class="status-dot"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        {% endif %}
-    </div>
+        </header>
 
+        <!-- Cluster Health Section -->
+        <section>
+            <h2 class="section-title">📦 Cluster Health</h2>
+            <div class="pod-grid {% if not pods %}empty{% endif %}">
+                {% for pod in pods %}
+                <div class="card">
+                    <div class="pod-card__header">
+                        <div class="pod-card__name">{{ pod.name }}</div>
+                        <div class="pod-card__status {{ pod.status|lower }}">{{ pod.status }}</div>
+                    </div>
+                    
+                    <div class="metric">
+                        <div class="metric__header">
+                            <span class="metric__label">CPU Utilization</span>
+                            <span class="metric__value">{{ pod.cpu }} mC</span>
+                        </div>
+                        <div class="metric__bar">
+                            <div class="metric__fill cpu" style="width: {{ pod.cpu_pct }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric__header">
+                            <span class="metric__label">Memory Usage</span>
+                            <span class="metric__value">{{ pod.mem }} MB</span>
+                        </div>
+                        <div class="metric__bar">
+                            <div class="metric__fill memory" style="width: {{ pod.mem_pct }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card empty">
+                    <div class="empty-state">
+                        <span class="empty-state__icon">📭</span>
+                        <p class="empty-state__text">No active pods in cluster</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Security Incidents Section -->
+        <section>
+            <h2 class="section-title">⚠️ Runtime Security Events</h2>
+            <div class="table-wrapper">
+                <div class="card card-table">
+                    <h3>Detected Anomalies & Remediation Actions</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Timestamp</th>
+                                <th style="width: 10%;">Priority</th>
+                                <th style="width: 15%;">Target Pod</th>
+                                <th style="width: 40%;">Rule & Context</th>
+                                <th style="width: 20%;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in alerts %}
+                            <tr>
+                                <td class="cell-time">{{ a.time }}</td>
+                                <td class="cell-priority">
+                                    <span class="priority-badge {% if a.priority == 'Critical' or a.priority == 'Error' %}critical{% elif a.priority == 'Warning' %}warning{% else %}notice{% endif %}">
+                                        {{ a.priority }}
+                                    </span>
+                                </td>
+                                <td class="cell-pod">{{ a.pod or '—' }}</td>
+                                <td class="cell-rule">
+                                    <span class="rule-name">{{ a.rule }}</span>
+                                    {{ a.output }}
+                                </td>
+                                <td class="cell-action">
+                                    {% if a.remediated %}
+                                        <span class="isolated-tag">
+                                            <span class="checkmark">✓</span>
+                                            ISOLATED
+                                        </span>
+                                    {% elif a.pod and a.pod != 'Unknown' %}
+                                        <button class="btn-isolate" onclick="remediatePod('{{ a.pod }}', {{ loop.index0 }})">Isolate</button>
+                                    {% else %}
+                                        <span style="color: var(--text-tertiary); font-size: 0.75rem;">N/A</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <span class="empty-state__icon">✓</span>
+                                        <p class="empty-state__text">No threats detected. Cluster in secure state.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Analysis Section -->
+        <section>
+            <h2 class="section-title">🤖 AI Security Analysis</h2>
+            <div class="card card-table">
+                <h3>Automated DevSecOps Scan Results</h3>
+                {% if ai_report %}
+                    <div id="ai-report-content" class="ai-report"></div>
+                    <script>
+                        const rawMarkdown = {{ ai_report | tojson }};
+                        document.getElementById('ai-report-content').innerHTML = marked.parse(rawMarkdown);
+                    </script>
+                {% else %}
+                    <div class="empty-state">
+                        <span class="empty-state__icon">📊</span>
+                        <p class="empty-state__text">No scan reports received. Integrate Trivy, SonarQube, OWASP ZAP via CI/CD pipeline.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
 </body>
 </html>
 """
