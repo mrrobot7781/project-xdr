@@ -19,6 +19,6 @@ spec:
       containers:
         - name: astra-xdr-dashboard
           image: mrrobot7781/astra-xdr-dashboard:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
