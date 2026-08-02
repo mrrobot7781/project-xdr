@@ -66,8 +66,8 @@ def write_to_step_summary(markdown_report):
 
 def send_to_dashboard(markdown_report):
     # Define your dashboard's webhook URL
-    # Replace this with the actual URL of your ASTRA-XDR dashboard endpoint
-    webhook_url = "http://your-dashboard-url.com/api/ai-report" 
+    # Replace <EC2_PUBLIC_IP> with the actual IP/domain of your ASTRA-XDR EC2 instance
+    webhook_url = "http://<EC2_PUBLIC_IP>:30081/api/ai-report" 
 
     # Prepare the JSON payload containing the report
     payload = {
@@ -77,8 +77,7 @@ def send_to_dashboard(markdown_report):
 
     try:
         # Use requests.post to send the JSON payload
-        # The json= parameter automatically converts the dictionary to a JSON string and sets the correct headers
-        response = requests.post(webhook_url, json=payload)
+        response = requests.post(webhook_url, json=payload, timeout=10)
         
         # Check if the request was successful
         if response.status_code == 200:

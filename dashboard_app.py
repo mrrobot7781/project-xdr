@@ -5,6 +5,7 @@ from functools import wraps
 
 app = Flask(__name__)
 alerts = []
+latest_ai_report = None  # Global variable to store the latest AI summary
 
 ADMIN_USER = "admin"
 ADMIN_PASS = "AstraXdr@2026"
@@ -90,8 +91,9 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <title>ASTRA-XDR | SOC Threat Center</title>
-    <meta http-equiv="refresh" content="5">
+    <meta http-equiv="refresh" content="10">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -189,6 +191,7 @@ HTML_TEMPLATE = """
             border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 20px;
+            margin-bottom: 30px;
         }
 
         table {
@@ -261,6 +264,35 @@ HTML_TEMPLATE = """
             align-items: center;
             gap: 6px;
         }
+
+        /* AI Markdown Report Styling */
+        .ai-report-body {
+            line-height: 1.6;
+            font-size: 14px;
+            color: #e5e7eb;
+        }
+        .ai-report-body h1, .ai-report-body h2, .ai-report-body h3 {
+            color: var(--accent-cyan);
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .ai-report-body code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-orange);
+        }
+        .ai-report-body pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--card-border);
+        }
+        .ai-report-body ul, .ai-report-body ol {
+            padding-left: 20px;
+        }
     </style>
     <script>
         function remediatePod(podName, alertIndex) {
@@ -314,6 +346,7 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
+    <!-- Table 1: Runtime Security Incidents -->
     <div class="table-card">
         <h3 style="margin-top:0; margin-bottom: 20px; color: var(--text-main);">Runtime Security Incidents & SOAR Actions</h3>
         <table>
@@ -360,6 +393,22 @@ HTML_TEMPLATE = """
         </table>
     </div>
 
+    <!-- Section 2: AI DevSecOps Remediation Summary -->
+    <div class="table-card">
+        <h3 style="margin-top:0; margin-bottom: 15px; color: var(--accent-cyan);">🤖 AI DevSecOps Remediation Summary (CI/CD Scan)</h3>
+        {% if ai_report %}
+            <div id="ai-report-content" class="ai-report-body"></div>
+            <script>
+                const rawMarkdown = {{ ai_report | tojson }};
+                document.getElementById('ai-report-content').innerHTML = marked.parse(rawMarkdown);
+            </script>
+        {% else %}
+            <p style="color: var(--text-muted); font-size: 14px; margin: 0; padding: 10px 0;">
+                No AI remediation scans received yet. Run your GitHub Actions pipeline to populate Trivy, SonarQube, and OWASP ZAP automated analysis.
+            </p>
+        {% endif %}
+    </div>
+
 </body>
 </html>
 """
@@ -368,7 +417,12 @@ HTML_TEMPLATE = """
 @requires_auth
 def index():
     stats = get_cluster_stats()
-    return render_template_string(HTML_TEMPLATE, alerts=list(reversed(alerts)), stats=stats)
+    return render_template_string(
+        HTML_TEMPLATE, 
+        alerts=list(reversed(alerts)), 
+        stats=stats, 
+        ai_report=latest_ai_report
+    )
 
 @app.route('/api/falco/events', methods=['POST'])
 def receive_falco_event():
@@ -386,6 +440,15 @@ def receive_falco_event():
             'remediated': False
         }
         alerts.append(alert)
+        return jsonify({"status": "received"}), 200
+    return jsonify({"error": "invalid payload"}), 400
+
+@app.route('/api/ai-report', methods=['POST'])
+def receive_ai_report():
+    global latest_ai_report
+    data = request.get_json(force=True)
+    if data and 'report' in data:
+        latest_ai_report = data.get('report')
         return jsonify({"status": "received"}), 200
     return jsonify({"error": "invalid payload"}), 400
 
