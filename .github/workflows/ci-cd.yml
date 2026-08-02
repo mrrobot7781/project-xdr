@@ -72,7 +72,7 @@ jobs:
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
   # -------------------------------------------------------------
-  # Job 3: Build, Scan & Push Docker Image to Docker Hub
+  # Job 3: Build, Scan & Push Docker Images to Docker Hub
   # -------------------------------------------------------------
   docker-build-push:
     name: Build, Scan & Push to Docker Hub
@@ -92,9 +92,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker Image locally for Scanning
+      - name: Build Docker Images locally for Scanning
         run: |
+          # 1. Build the main application
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest .
+          
+          # 2. Build the dashboard application (Change 'Dockerfile.dashboard' if yours is named differently)
+          docker build -f Dockerfile.dashboard -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-dashboard:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-dashboard:latest .
 
       - name: Run Trivy Vulnerability Scan
         uses: aquasecurity/trivy-action@master
@@ -111,13 +115,18 @@ jobs:
           name: trivy-security-report
           path: trivy-report.txt
 
-      - name: Push Image to Docker Hub
+      - name: Push Images to Docker Hub
         run: |
+          # Push Main App
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest
+          
+          # Push Dashboard App
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-dashboard:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-dashboard:latest
 
   # -------------------------------------------------------------
-  # Job 4: DAST Scan via Direct Docker Container (Bypasses Broken Action)
+  # Job 4: DAST Scan via Direct Docker Container
   # -------------------------------------------------------------
   dast-scan:
     name: OWASP ZAP DAST Scan
@@ -221,7 +230,8 @@ jobs:
   ai-remediation:
     name: Generate AI Security Summary
     runs-on: ubuntu-latest
-    needs: [sonarqube, dast-scan] # Wait for both SAST and DAST to finish
+    # Added cd-deploy-k8s here so the webhook waits for the new UI to be online
+    needs: [sonarqube, dast-scan, cd-deploy-k8s] 
 
     steps:
       - name: Checkout Code
@@ -233,7 +243,8 @@ jobs:
           python-version: '3.10'
 
       - name: Install Google Gen AI SDK
-        run: pip install -q -U google-genai #
+        # Ensure requests library is installed here for the webhook
+        run: pip install -q -U google-genai requests 
 
       # Download all the artifacts generated in previous steps
       - name: Download Trivy Artifact
@@ -254,6 +265,6 @@ jobs:
 
       - name: Generate and Publish AI Summary
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Ensure this secret is set in your repo
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
         run: |
           python scripts/ai_remediation.py
