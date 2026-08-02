@@ -39,51 +39,67 @@ except Exception as e:
     print(f"[ASTRA-XDR] K8s Config issue: {e}")
     k8s_enabled = False
 
-def get_cluster_stats():
-    """Fetch active running pods and live CPU/Memory utilization."""
+def get_pod_metrics():
+    """Fetch individual running pods and their live CPU/Memory utilization."""
     if not k8s_enabled:
-        return {"pods_count": "Offline", "status": "OUTSIDE CLUSTER", "cpu": "N/A", "mem": "N/A"}
+        return []
+    
+    pod_data = []
     try:
         pods = k8s_v1.list_namespaced_pod(namespace="default")
-        running_pods = len([p for p in pods.items if p.status.phase == "Running"])
         
         # Pull live pod metrics from K8s Metrics Server API
-        total_cpu = 0
-        total_mem = 0
+        metrics_dict = {}
         try:
             pod_metrics = k8s_custom.list_namespaced_custom_object(
                 group="metrics.k8s.io", version="v1beta1", namespace="default", plural="pods"
             )
-            for container in [c for pod in pod_metrics.get('items', []) for c in pod['containers']]:
-                cpu_str = container['usage']['cpu']
-                mem_str = container['usage']['memory']
-                
-                # Parse CPU (convert cores/nanocores to millicores)
-                if cpu_str.endswith('n'):
-                    total_cpu += int(cpu_str[:-1]) // 1000000
-                elif cpu_str.endswith('m'):
-                    total_cpu += int(cpu_str[:-1])
-                
-                # Parse Memory (convert Ki/Mi to MB)
-                if mem_str.endswith('Ki'):
-                    total_mem += int(mem_str[:-2]) // 1024
-                elif mem_str.endswith('Mi'):
-                    total_mem += int(mem_str[:-2])
-
-            cpu_val = f"{total_cpu} mCPU"
-            mem_val = f"{total_mem} MiB"
+            for m in pod_metrics.get('items', []):
+                metrics_dict[m['metadata']['name']] = m
         except Exception:
-            cpu_val = "Collecting..."
-            mem_val = "Collecting..."
+            pass # Metrics server might be syncing
 
-        return {
-            "pods_count": f"{running_pods} Active Pods",
-            "status": "HEALTHY",
-            "cpu": cpu_val,
-            "mem": mem_val
-        }
+        for pod in pods.items:
+            pod_name = pod.metadata.name
+            status = pod.status.phase
+            cpu_val = 0
+            mem_val = 0
+            
+            if pod_name in metrics_dict:
+                for container in metrics_dict[pod_name]['containers']:
+                    cpu_str = container['usage']['cpu']
+                    mem_str = container['usage']['memory']
+                    
+                    # Parse CPU (convert cores/nanocores to millicores)
+                    if cpu_str.endswith('n'):
+                        cpu_val += int(cpu_str[:-1]) // 1000000
+                    elif cpu_str.endswith('m'):
+                        cpu_val += int(cpu_str[:-1])
+                    
+                    # Parse Memory (convert Ki/Mi to MB)
+                    if mem_str.endswith('Ki'):
+                        mem_val += int(mem_str[:-2]) // 1024
+                    elif mem_str.endswith('Mi'):
+                        mem_val += int(mem_str[:-2])
+
+            # Calculate width percentages for the UI visual bars
+            # Assuming 500mCPU and 512MiB as a "full" bar for visual scaling purposes
+            cpu_pct = min((cpu_val / 500) * 100, 100) if cpu_val > 0 else 0
+            mem_pct = min((mem_val / 512) * 100, 100) if mem_val > 0 else 0
+
+            pod_data.append({
+                "name": pod_name,
+                "status": status,
+                "cpu": cpu_val,
+                "mem": mem_val,
+                "cpu_pct": cpu_pct,
+                "mem_pct": mem_pct
+            })
+            
     except Exception as e:
-        return {"pods_count": "Permission Pending", "status": "RBAC RESTRICTED", "cpu": "N/A", "mem": "N/A"}
+        print(f"[ASTRA-XDR] Error fetching pod metrics: {e}")
+        
+    return pod_data
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -154,14 +170,15 @@ HTML_TEMPLATE = """
             box-shadow: 0 0 8px var(--accent-green);
         }
 
-        .grid {
+        /* New Pod Grid Styling */
+        .pod-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .card {
+        .pod-card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--card-border);
@@ -170,21 +187,63 @@ HTML_TEMPLATE = """
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .card h3 {
+        .pod-card h3 {
             margin-top: 0;
-            font-size: 13px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 1px;
+            font-size: 14px;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            word-break: break-all;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .metric-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 22px;
+        .pod-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 700;
-            color: #ffffff;
-            margin-top: 8px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
         }
+        .status-running { background: rgba(0, 230, 118, 0.15); color: var(--accent-green); border: 1px solid rgba(0, 230, 118, 0.4); }
+        .status-pending { background: rgba(255, 145, 0, 0.15); color: var(--accent-orange); border: 1px solid rgba(255, 145, 0, 0.4); }
+        .status-error { background: rgba(255, 82, 82, 0.15); color: var(--accent-red); border: 1px solid rgba(255, 82, 82, 0.4); }
+
+        .metric-row {
+            margin-bottom: 15px;
+        }
+
+        .metric-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .metric-val {
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .cpu-fill { background: linear-gradient(90deg, #00e676, #00b0ff); }
+        .mem-fill { background: linear-gradient(90deg, #00f2fe, #4facfe); }
 
         .table-card {
             background: var(--card-bg);
@@ -266,33 +325,11 @@ HTML_TEMPLATE = """
         }
 
         /* AI Markdown Report Styling */
-        .ai-report-body {
-            line-height: 1.6;
-            font-size: 14px;
-            color: #e5e7eb;
-        }
-        .ai-report-body h1, .ai-report-body h2, .ai-report-body h3 {
-            color: var(--accent-cyan);
-            margin-top: 15px;
-            margin-bottom: 10px;
-        }
-        .ai-report-body code {
-            font-family: 'JetBrains Mono', monospace;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: var(--accent-orange);
-        }
-        .ai-report-body pre {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 12px;
-            border-radius: 8px;
-            overflow-x: auto;
-            border: 1px solid var(--card-border);
-        }
-        .ai-report-body ul, .ai-report-body ol {
-            padding-left: 20px;
-        }
+        .ai-report-body { line-height: 1.6; font-size: 14px; color: #e5e7eb; }
+        .ai-report-body h1, .ai-report-body h2, .ai-report-body h3 { color: var(--accent-cyan); margin-top: 15px; margin-bottom: 10px; }
+        .ai-report-body code { font-family: 'JetBrains Mono', monospace; background: rgba(0, 0, 0, 0.4); padding: 2px 6px; border-radius: 4px; color: var(--accent-orange); }
+        .ai-report-body pre { background: rgba(0, 0, 0, 0.5); padding: 12px; border-radius: 8px; overflow-x: auto; border: 1px solid var(--card-border); }
+        .ai-report-body ul, .ai-report-body ol { padding-left: 20px; }
     </style>
     <script>
         function remediatePod(podName, alertIndex) {
@@ -323,27 +360,38 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <div class="grid">
-        <div class="card">
-            <h3>Cluster Status</h3>
-            <div class="metric-value" style="color: var(--accent-cyan);">{{ stats.status }}</div>
+    <!-- NEW: Dynamic Pod Telemetry Cards -->
+    <div class="pod-grid">
+        {% for pod in pods %}
+        <div class="pod-card">
+            <h3>📦 {{ pod.name }}</h3>
+            <div class="pod-status status-{{ pod.status|lower }}">{{ pod.status }}</div>
+            
+            <div class="metric-row">
+                <div class="metric-labels">
+                    <span>CPU Utilization</span>
+                    <span class="metric-val">{{ pod.cpu }} mCPU</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill cpu-fill" style="width: {{ pod.cpu_pct }}%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-row">
+                <div class="metric-labels">
+                    <span>Memory Utilization</span>
+                    <span class="metric-val">{{ pod.mem }} MiB</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill mem-fill" style="width: {{ pod.mem_pct }}%;"></div>
+                </div>
+            </div>
         </div>
-        <div class="card">
-            <h3>Active Pods</h3>
-            <div class="metric-value">{{ stats.pods_count }}</div>
+        {% else %}
+        <div class="pod-card" style="text-align: center; color: var(--text-muted);">
+            No active pods detected in the cluster.
         </div>
-        <div class="card">
-            <h3>Workload CPU</h3>
-            <div class="metric-value" style="color: var(--accent-green);">{{ stats.cpu }}</div>
-        </div>
-        <div class="card">
-            <h3>Workload RAM</h3>
-            <div class="metric-value" style="color: var(--accent-cyan);">{{ stats.mem }}</div>
-        </div>
-        <div class="card">
-            <h3>Threat Events</h3>
-            <div class="metric-value" style="color: var(--accent-orange);">{{ alerts|length }}</div>
-        </div>
+        {% endfor %}
     </div>
 
     <!-- Table 1: Runtime Security Incidents -->
@@ -416,11 +464,11 @@ HTML_TEMPLATE = """
 @app.route('/')
 @requires_auth
 def index():
-    stats = get_cluster_stats()
+    pods = get_pod_metrics()
     return render_template_string(
-        HTML_TEMPLATE, 
-        alerts=list(reversed(alerts)), 
-        stats=stats, 
+        HTML_TEMPLATE,
+        alerts=list(reversed(alerts)),
+        pods=pods,
         ai_report=latest_ai_report
     )
 
@@ -430,7 +478,7 @@ def receive_falco_event():
     if data:
         output_fields = data.get('output_fields', {})
         pod_name = output_fields.get('k8s.pod.name', 'Unknown')
-        
+
         alert = {
             'time': data.get('time', str(datetime.datetime.now())),
             'rule': data.get('rule', 'Unknown Rule'),
@@ -464,7 +512,7 @@ def remediate_pod():
 
     try:
         k8s_v1.delete_namespaced_pod(name=pod_name, namespace="default")
-        
+
         rev_index = len(alerts) - 1 - alert_id
         if 0 <= rev_index < len(alerts):
             alerts[rev_index]['remediated'] = True
