@@ -67,7 +67,7 @@ def write_to_step_summary(markdown_report):
 def send_to_dashboard(markdown_report):
     # Define your dashboard's webhook URL
     # Replace <EC2_PUBLIC_IP> with the actual IP/domain of your ASTRA-XDR EC2 instance
-    webhook_url = "http://<EC2_PUBLIC_IP>:30081/api/ai-report" 
+    webhook_url = "http://18.206.240.100:30081/api/ai-report" 
 
     # Prepare the JSON payload containing the report
     payload = {
