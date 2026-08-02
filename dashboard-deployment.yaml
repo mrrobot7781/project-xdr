@@ -15,6 +15,7 @@ spec:
         app: astra-xdr-dashboard
     spec:
       terminationGracePeriodSeconds: 5
+      serviceAccountName: astra-dashboard-sa # Added the service account here
       containers:
         - name: astra-xdr-dashboard
           image: mrrobot7781/astra-xdr-dashboard:latest
