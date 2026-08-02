@@ -40,7 +40,7 @@ def generate_ai_summary(trivy_data, sonar_data, zap_data):
     # Generate the content using the Gemini 2.5 Flash model
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
         return response.text
