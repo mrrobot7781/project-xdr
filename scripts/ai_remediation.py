@@ -1,7 +1,8 @@
 import json
 import os
-import sys
+import requests
 from google import genai
+from google.genai import types
 
 def load_json(filepath):
     try:
@@ -37,11 +38,14 @@ def generate_ai_summary(trivy_data, sonar_data, zap_data):
     {str(zap_data)[:1500]}...
     """
 
-    # Generate the content using the Gemini 2.5 Flash model
+    # Generate the content using the Gemini 3.5 Flash model
     try:
         response = client.models.generate_content(
             model="gemini-3.5-flash",
-            contents=prompt
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.2, # Lower temperature for more deterministic/factual output
+            )
         )
         return response.text
     except Exception as e:
@@ -60,10 +64,34 @@ def write_to_step_summary(markdown_report):
     with open(summary_file, "a") as f:
         f.write(markdown_report)
 
+def send_to_dashboard(markdown_report):
+    # Define your dashboard's webhook URL
+    # Replace this with the actual URL of your ASTRA-XDR dashboard endpoint
+    webhook_url = "http://your-dashboard-url.com/api/ai-report" 
+
+    # Prepare the JSON payload containing the report
+    payload = {
+        "event_type": "security_scan_completed",
+        "report": markdown_report
+    }
+
+    try:
+        # Use requests.post to send the JSON payload
+        # The json= parameter automatically converts the dictionary to a JSON string and sets the correct headers
+        response = requests.post(webhook_url, json=payload)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+            print("Successfully sent report to dashboard!")
+        else:
+            print(f"Failed to send report. Status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+         print(f"Error sending webhook: {e}")
+
 if __name__ == "__main__":
     print("Loading scan reports...")
-    trivy = load_text('trivy-report.txt') # You output Trivy as table/txt in your current YAML
-    sonar = load_text('sonar-report.json') # You'll need to export SonarQube to JSON
+    trivy = load_text('trivy-report.txt') 
+    sonar = load_text('sonar-report.json') 
     zap = load_json('report_json.json')
     
     print("Generating AI summary...")
@@ -71,4 +99,8 @@ if __name__ == "__main__":
     
     print("Writing to GitHub Step Summary...")
     write_to_step_summary(report)
+    
+    print("Sending report to dashboard via webhook...")
+    send_to_dashboard(report)
+    
     print("AI Remediation Report generated successfully.")
