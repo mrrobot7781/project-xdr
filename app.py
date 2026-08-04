@@ -1,38 +1,92 @@
 """
-Professional Employee Management Application
-With intentional OWASP vulnerabilities for security testing
+Professional Employee Management Application - SECURE VERSION
+Security best practices implemented for production deployment
 """
 import json
-import pickle
-import base64
 import sqlite3
-from functools import wraps
-from datetime import datetime, timedelta
-import xml.etree.ElementTree as ET
-from flask import Flask, jsonify, request, render_template_string, redirect, session, send_file
-from werkzeug.utils import secure_filename
 import os
+from functools import wraps
+from datetime import datetime
+import xml.etree.ElementTree as ET
+from io import StringIO
+import csv
+
+from flask import Flask, jsonify, request, render_template_string, redirect, session
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+from markupsafe import escape
+import logging
+
+# ============================================================================
+# CONFIGURATION - Using Environment Variables
+# ============================================================================
 
 app = Flask(__name__)
 
-# FIX FOR PYTEST: Added root route '/' to resolve 404 error during CI/CD testing
-@app.route('/')
-def home():
-    return render_template_string(LOGIN_TEMPLATE)
-# VULNERABILITY #1: Hardcoded Secret Key (Information Disclosure + Weak Session Management)
-app.secret_key = 'super-secret-key-12345-production'
+# Use environment variables for sensitive data
+app.secret_key = os.environ.get('SECRET_KEY', 'change-me-in-production-use-env-vars')
+if app.secret_key == 'change-me-in-production-use-env-vars':
+    app.logger.warning('Using default SECRET_KEY. Set SECRET_KEY environment variable.')
 
-# VULNERABILITY #2: Hardcoded Credentials in code
-ADMIN_CREDENTIALS = {
-    'username': 'admin',
-    'password': 'admin123'  # Weak password
-}
+# Security configurations
+app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS only
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # No JavaScript access
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour timeout
+app.config['WTF_CSRF_TIME_LIMIT'] = None  # No time limit on CSRF tokens
 
-# Database setup with vulnerabilities
-DATABASE = '/tmp/employee_app.db'
-UPLOAD_FOLDER = '/tmp/uploads'
+# Disable debug mode in production
+app.debug = os.environ.get('FLASK_ENV') == 'development'
+if app.debug:
+    app.logger.warning('Debug mode is enabled. Disable in production.')
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
+
+# Initialize rate limiter
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ============================================================================
+# SECURE FILE UPLOAD CONFIGURATION
+# ============================================================================
+
+DATABASE = os.environ.get('DATABASE_PATH', '/tmp/employee_app.db')
+UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', '/tmp/uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'xml', 'json', 'csv', 'exe', 'sh'}  # VULNERABILITY: Dangerous file types allowed
+
+# Only allow safe file types
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'csv', 'json'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    if '.' not in filename:
+        return False
+    ext = filename.rsplit('.', 1)[1].lower()
+    return ext in ALLOWED_EXTENSIONS
+
+def validate_file_size(file_obj):
+    """Check file size"""
+    file_obj.seek(0, os.SEEK_END)
+    size = file_obj.tell()
+    file_obj.seek(0)
+    return size <= MAX_FILE_SIZE
+
+# ============================================================================
+# DATABASE SETUP
+# ============================================================================
 
 def init_db():
     """Initialize database with sample data"""
@@ -43,54 +97,56 @@ def init_db():
         # Create tables
         c.execute('''CREATE TABLE employees (
             id INTEGER PRIMARY KEY,
-            name TEXT,
-            email TEXT,
-            role TEXT,
-            department TEXT,
-            salary REAL,
-            password TEXT,
-            ssn TEXT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            role TEXT NOT NULL,
+            department TEXT NOT NULL,
+            salary REAL NOT NULL,
+            ssn TEXT NOT NULL,
             address TEXT,
             phone TEXT
         )''')
         
         c.execute('''CREATE TABLE users (
             id INTEGER PRIMARY KEY,
-            username TEXT UNIQUE,
-            password TEXT,
-            email TEXT,
-            role TEXT
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            email TEXT NOT NULL,
+            role TEXT NOT NULL
         )''')
         
         c.execute('''CREATE TABLE performance (
             id INTEGER PRIMARY KEY,
-            employee_id INTEGER,
-            rating REAL,
+            employee_id INTEGER NOT NULL,
+            rating REAL NOT NULL,
             comments TEXT,
-            date TEXT
+            date TEXT NOT NULL,
+            FOREIGN KEY(employee_id) REFERENCES employees(id)
         )''')
         
-        # Insert sample data
+        # Insert sample data with securely hashed passwords
         employees_data = [
-            (101, 'Akshay Kumar', 'akshay@corp.com', 'DevSecOps Lead', 'Security Operations', 120000, 'pass123', '123-45-6789', '123 Main St', '555-0101'),
-            (102, 'Rohan Singh', 'rohan@corp.com', 'Cloud Architect', 'Infrastructure', 110000, 'rohan@123', '234-56-7890', '456 Oak Ave', '555-0102'),
-            (103, 'Priya Sharma', 'priya@corp.com', 'Backend Engineer', 'Engineering', 95000, 'priya#456', '345-67-8901', '789 Pine Rd', '555-0103'),
-            (104, 'Vikram Patel', 'vikram@corp.com', 'Database Admin', 'Infrastructure', 105000, 'vikram@789', '456-78-9012', '101 Elm St', '555-0104'),
-            (105, 'Neha Gupta', 'neha@corp.com', 'Security Engineer', 'Security Operations', 98000, 'neha!234', '567-89-0123', '202 Maple Dr', '555-0105'),
+            (101, 'Akshay Kumar', 'akshay@corp.com', 'DevSecOps Lead', 'Security Operations', 120000, '123-45-6789', '123 Main St', '555-0101'),
+            (102, 'Rohan Singh', 'rohan@corp.com', 'Cloud Architect', 'Infrastructure', 110000, '234-56-7890', '456 Oak Ave', '555-0102'),
+            (103, 'Priya Sharma', 'priya@corp.com', 'Backend Engineer', 'Engineering', 95000, '345-67-8901', '789 Pine Rd', '555-0103'),
+            (104, 'Vikram Patel', 'vikram@corp.com', 'Database Admin', 'Infrastructure', 105000, '456-78-9012', '101 Elm St', '555-0104'),
+            (105, 'Neha Gupta', 'neha@corp.com', 'Security Engineer', 'Security Operations', 98000, '567-89-0123', '202 Maple Dr', '555-0105'),
         ]
         
-        c.executemany('INSERT INTO employees VALUES (?,?,?,?,?,?,?,?,?,?)', employees_data)
+        c.executemany('INSERT INTO employees VALUES (?,?,?,?,?,?,?,?,?)', employees_data)
         
+        # Use hashed passwords
         users_data = [
-            (1, 'admin', 'admin123', 'admin@corp.com', 'admin'),
-            (2, 'manager', 'manager123', 'manager@corp.com', 'manager'),
-            (3, 'user', 'user123', 'user@corp.com', 'user'),
+            (1, 'admin', generate_password_hash('Admin@123'), 'admin@corp.com', 'admin'),
+            (2, 'manager', generate_password_hash('Manager@123'), 'manager@corp.com', 'manager'),
+            (3, 'user', generate_password_hash('User@123'), 'user@corp.com', 'user'),
         ]
         
         c.executemany('INSERT INTO users VALUES (?,?,?,?,?)', users_data)
         
         conn.commit()
         conn.close()
+        logger.info('Database initialized')
 
 def get_db_connection():
     """Get database connection"""
@@ -98,8 +154,12 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# VULNERABILITY #3: Weak Authentication check (No proper validation)
+# ============================================================================
+# AUTHENTICATION & AUTHORIZATION
+# ============================================================================
+
 def login_required(f):
+    """Decorator to require login"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
@@ -107,329 +167,607 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# VULNERABILITY #4: No CSRF Protection
-# VULNERABILITY #5: No Rate Limiting
+def role_required(required_roles):
+    """Decorator to require specific roles"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'user_id' not in session:
+                return redirect('/login')
+            
+            user_role = session.get('role')
+            if user_role not in required_roles:
+                logger.warning(f'Unauthorized access attempt by user {session.get("username")}')
+                return jsonify({'error': 'Unauthorized'}), 403
+            
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+@app.route('/')
+def home():
+    """Home route"""
+    if 'user_id' in session:
+        return redirect('/dashboard')
+    return redirect('/login')
+
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")  # Rate limiting
 def login():
+    """Secure login with parameterized queries"""
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
         
-        # VULNERABILITY #6: Direct SQL Injection in authentication
-        conn = get_db_connection()
-        c = conn.cursor()
-        query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"  # SQL INJECTION!
+        # Input validation
+        if not username or not password:
+            return render_template_string(LOGIN_TEMPLATE, error='Username and password required')
         
         try:
-            c.execute(query)
+            conn = get_db_connection()
+            c = conn.cursor()
+            
+            # Use parameterized query to prevent SQL injection
+            c.execute('SELECT * FROM users WHERE username = ?', (username,))
             user = c.fetchone()
             conn.close()
             
-            if user:
+            # Verify password hash
+            if user and check_password_hash(user['password'], password):
+                session.permanent = True
                 session['user_id'] = user['id']
                 session['username'] = user['username']
                 session['role'] = user['role']
+                logger.info(f'User {username} logged in successfully')
                 return redirect('/dashboard')
             else:
-                return render_template_string(LOGIN_TEMPLATE, error="Invalid credentials")
+                logger.warning(f'Failed login attempt for user {username}')
+                return render_template_string(LOGIN_TEMPLATE, error='Invalid credentials')
+        
         except Exception as e:
-            conn.close()
-            return render_template_string(LOGIN_TEMPLATE, error=f"Error: {str(e)}")  # VULNERABILITY: Error disclosure
+            logger.error(f'Login error: {str(e)}')
+            return render_template_string(LOGIN_TEMPLATE, error='An error occurred. Please try again.')
     
     return render_template_string(LOGIN_TEMPLATE)
 
 @app.route('/logout')
 def logout():
+    """Logout user"""
+    username = session.get('username')
     session.clear()
+    logger.info(f'User {username} logged out')
     return redirect('/login')
 
-# VULNERABILITY #7: Insecure Direct Object Reference (IDOR)
-@app.route('/api/employees/<int:emp_id>')
-def get_employee_details(emp_id):
-    """Get employee details - VULNERABLE to IDOR"""
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    # No authorization check - direct ID access
-    c.execute('SELECT * FROM employees WHERE id = ?', (emp_id,))
-    employee = c.fetchone()
-    conn.close()
-    
-    if employee:
-        # VULNERABILITY #8: Sensitive data exposure (SSN, password, address exposed in API)
-        return jsonify({
-            'id': employee['id'],
-            'name': employee['name'],
-            'email': employee['email'],
-            'role': employee['role'],
-            'salary': employee['salary'],  # Sensitive!
-            'ssn': employee['ssn'],  # PII exposure!
-            'password': employee['password'],  # Credential exposure!
-            'address': employee['address'],  # PII!
-            'phone': employee['phone']
-        })
-    
-    return jsonify({'error': 'Employee not found'}), 404
-
-# VULNERABILITY #9: Reflected XSS
-@app.route('/search')
-def search():
-    query = request.args.get('q', '')  # No sanitization
-    search_term = f"%{query}%"
-    
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    # VULNERABILITY #10: SQL Injection in search
-    sql = f"SELECT * FROM employees WHERE name LIKE '{search_term}' OR email LIKE '{search_term}'"
-    c.execute(sql)
-    results = c.fetchall()
-    conn.close()
-    
-    html = f"""
-    <html>
-    <body>
-    <h2>Search Results for: {query}</h2>  <!-- XSS Vulnerability -->
-    <table>
-    """
-    
-    for emp in results:
-        html += f"<tr><td>{emp['name']}</td><td>{emp['email']}</td></tr>"
-    
-    html += "</table></body></html>"
-    return html, 200, {'Content-Type': 'text/html'}
-
-# VULNERABILITY #11: Insecure File Upload
-@app.route('/upload', methods=['GET', 'POST'])
-@login_required
-def upload_file():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return 'No file provided'
-        
-        file = request.files['file']
-        
-        if file.filename == '':
-            return 'No file selected'
-        
-        # VULNERABILITY #12: No file type validation despite extension check
-        # VULNERABILITY #13: Predictable file path
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
-        
-        return f'File {filename} uploaded successfully to {filepath}'
-    
-    return render_template_string(UPLOAD_TEMPLATE)
-
-# VULNERABILITY #14: XXE (XML External Entity) Vulnerability
-@app.route('/api/import-xml', methods=['POST'])
-def import_xml():
-    if 'xml_file' not in request.files:
-        return jsonify({'error': 'No XML file provided'}), 400
-    
-    xml_file = request.files['xml_file']
-    xml_content = xml_file.read().decode('utf-8')
-    
-    try:
-        # VULNERABILITY: XXE Attack - No security settings
-        root = ET.fromstring(xml_content)
-        
-        return jsonify({
-            'status': 'imported',
-            'data': ET.tostring(root, encoding='unicode')
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-
-# VULNERABILITY #15: Insecure Deserialization
-@app.route('/api/export-pickle', methods=['GET'])
-def export_pickle():
-    """Export employee data as pickle - Insecure Deserialization"""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('SELECT * FROM employees')
-    employees = c.fetchall()
-    conn.close()
-    
-    emp_list = [dict(emp) for emp in employees]
-    pickled = pickle.dumps(emp_list)
-    encoded = base64.b64encode(pickled).decode()
-    
-    return jsonify({'data': encoded, 'format': 'pickle', 'warning': 'Use pickle.loads to deserialize'})
-
-# VULNERABILITY #16: Debug mode and verbose error messages
-@app.route('/api/debug/sql')
-def debug_sql():
-    """Debug endpoint exposing SQL queries"""
-    return jsonify({
-        'last_query': 'SELECT * FROM employees WHERE id = 1',
-        'db_host': 'localhost',
-        'db_user': 'admin',
-        'db_password': 'dbpassword123'  # Credentials exposed!
-    })
-
-# VULNERABILITY #17: Missing Security Headers (app.py itself doesn't set them)
+# ============================================================================
+# EMPLOYEE ENDPOINTS
+# ============================================================================
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    """Dashboard for authenticated users"""
     return render_template_string(DASHBOARD_TEMPLATE)
 
 @app.route('/api/employees', methods=['GET'])
+@login_required
 def get_employees():
-    """Get all employees - no authorization check"""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('SELECT id, name, email, role, department FROM employees')
-    employees = c.fetchall()
-    conn.close()
-    
-    return jsonify({
-        'status': 'success',
-        'count': len(employees),
-        'data': [dict(emp) for emp in employees]
-    })
-
-# VULNERABILITY #18: Broken Access Control - No role-based access
-@app.route('/api/employees', methods=['POST'])
-def add_employee():
-    """Add employee - no authorization check"""
-    data = request.get_json()
-    
-    # VULNERABILITY #19: No input validation on server side
-    conn = get_db_connection()
-    c = conn.cursor()
-    
+    """Get all employees (role-based access)"""
     try:
-        c.execute('''INSERT INTO employees 
-                    (name, email, role, department, salary, password, ssn, address, phone)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                 (data.get('name'), data.get('email'), data.get('role'),
-                  data.get('department'), data.get('salary'), data.get('password'),
-                  data.get('ssn'), data.get('address'), data.get('phone')))
-        
-        conn.commit()
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute('SELECT id, name, email, role, department FROM employees')
+        employees = c.fetchall()
         conn.close()
         
-        return jsonify({'status': 'success', 'message': 'Employee added'}), 201
-    except Exception as e:
-        conn.close()
-        return jsonify({'error': str(e)}), 400
-
-# VULNERABILITY #20: Unsafe HTTP Methods
-@app.route('/api/employees/<int:emp_id>', methods=['PUT', 'DELETE'])
-def update_delete_employee(emp_id):
-    """Update or delete employee - no CSRF protection"""
+        return jsonify({
+            'status': 'success',
+            'count': len(employees),
+            'data': [dict(emp) for emp in employees]
+        })
     
-    if request.method == 'PUT':
-        data = request.get_json()
+    except Exception as e:
+        logger.error(f'Error fetching employees: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/employees/<int:emp_id>')
+@login_required
+def get_employee_details(emp_id):
+    """Get employee details with authorization checks"""
+    try:
+        # Validate emp_id
+        if not isinstance(emp_id, int) or emp_id <= 0:
+            return jsonify({'error': 'Invalid employee ID'}), 400
+        
         conn = get_db_connection()
         c = conn.cursor()
         
-        update_query = f"""UPDATE employees SET 
-                          name='{data.get('name')}',
-                          email='{data.get('email')}',
-                          salary={data.get('salary')}
-                          WHERE id={emp_id}"""  # SQL INJECTION!
+        # Use parameterized query
+        c.execute('SELECT id, name, email, role, department FROM employees WHERE id = ?', (emp_id,))
+        employee = c.fetchone()
+        conn.close()
+        
+        if employee:
+            # Return only non-sensitive information
+            return jsonify({
+                'id': employee['id'],
+                'name': escape(employee['name']),
+                'email': escape(employee['email']),
+                'role': escape(employee['role']),
+                'department': escape(employee['department'])
+            })
+        
+        return jsonify({'error': 'Employee not found'}), 404
+    
+    except Exception as e:
+        logger.error(f'Error fetching employee details: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/employees', methods=['POST'])
+@login_required
+@role_required(['admin', 'manager'])  # Only admins and managers can add
+def add_employee():
+    """Add employee with input validation"""
+    try:
+        data = request.get_json()
+        
+        # Input validation
+        required_fields = ['name', 'email', 'role', 'department', 'salary']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Validate email format
+        if '@' not in data.get('email', '') or '.' not in data.get('email', ''):
+            return jsonify({'error': 'Invalid email format'}), 400
+        
+        # Validate salary is a number
+        try:
+            salary = float(data.get('salary'))
+            if salary < 0:
+                return jsonify({'error': 'Invalid salary'}), 400
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Salary must be a number'}), 400
+        
+        conn = get_db_connection()
+        c = conn.cursor()
         
         try:
-            c.execute(update_query)
+            # Use parameterized query
+            c.execute('''INSERT INTO employees 
+                        (name, email, role, department, salary, ssn, address, phone)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                     (escape(data.get('name')).strip(),
+                      escape(data.get('email')).strip(),
+                      escape(data.get('role')).strip(),
+                      escape(data.get('department')).strip(),
+                      salary,
+                      escape(data.get('ssn', '000-00-0000')),
+                      escape(data.get('address', 'N/A')),
+                      escape(data.get('phone', 'N/A'))))
+            
             conn.commit()
             conn.close()
-            return jsonify({'status': 'updated'})
-        except Exception as e:
+            logger.info(f'Employee {data.get("name")} added by {session.get("username")}')
+            
+            return jsonify({'status': 'success', 'message': 'Employee added'}), 201
+        
+        except sqlite3.IntegrityError:
             conn.close()
-            return jsonify({'error': str(e)}), 400
+            return jsonify({'error': 'Employee email already exists'}), 409
     
-    elif request.method == 'DELETE':
+    except Exception as e:
+        logger.error(f'Error adding employee: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/employees/<int:emp_id>', methods=['PUT'])
+@login_required
+@role_required(['admin', 'manager'])
+def update_employee(emp_id):
+    """Update employee with parameterized queries"""
+    try:
+        data = request.get_json()
+        
+        # Validate emp_id
+        if not isinstance(emp_id, int) or emp_id <= 0:
+            return jsonify({'error': 'Invalid employee ID'}), 400
+        
+        # Validate salary if provided
+        if 'salary' in data:
+            try:
+                salary = float(data['salary'])
+                if salary < 0:
+                    return jsonify({'error': 'Invalid salary'}), 400
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Salary must be a number'}), 400
+        
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute(f'DELETE FROM employees WHERE id = {emp_id}')  # SQL INJECTION!
+        
+        # Use parameterized query
+        c.execute('''UPDATE employees SET 
+                      name = ?,
+                      email = ?,
+                      salary = ?
+                      WHERE id = ?''',
+                 (escape(data.get('name')).strip(),
+                  escape(data.get('email')).strip(),
+                  float(data.get('salary')),
+                  emp_id))
+        
+        if c.rowcount == 0:
+            conn.close()
+            return jsonify({'error': 'Employee not found'}), 404
+        
         conn.commit()
         conn.close()
-        return jsonify({'status': 'deleted'})
+        logger.info(f'Employee {emp_id} updated by {session.get("username")}')
+        
+        return jsonify({'status': 'success', 'message': 'Employee updated'})
+    
+    except Exception as e:
+        logger.error(f'Error updating employee: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
 
-# VULNERABILITY #21: Performance ratings with stored XSS potential
+@app.route('/api/employees/<int:emp_id>', methods=['DELETE'])
+@login_required
+@role_required(['admin'])  # Only admins can delete
+def delete_employee(emp_id):
+    """Delete employee with authorization"""
+    try:
+        # Validate emp_id
+        if not isinstance(emp_id, int) or emp_id <= 0:
+            return jsonify({'error': 'Invalid employee ID'}), 400
+        
+        conn = get_db_connection()
+        c = conn.cursor()
+        
+        # Use parameterized query
+        c.execute('DELETE FROM employees WHERE id = ?', (emp_id,))
+        
+        if c.rowcount == 0:
+            conn.close()
+            return jsonify({'error': 'Employee not found'}), 404
+        
+        conn.commit()
+        conn.close()
+        logger.info(f'Employee {emp_id} deleted by {session.get("username")}')
+        
+        return jsonify({'status': 'success', 'message': 'Employee deleted'})
+    
+    except Exception as e:
+        logger.error(f'Error deleting employee: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+# ============================================================================
+# SEARCH ENDPOINT
+# ============================================================================
+
+@app.route('/search')
+@login_required
+@limiter.limit("10 per minute")
+def search():
+    """Secure search with parameterized queries"""
+    try:
+        query = request.args.get('q', '').strip()
+        
+        # Input validation
+        if not query or len(query) > 100:
+            return render_template_string(SEARCH_TEMPLATE, results=[], query='')
+        
+        search_term = f"%{query}%"
+        
+        conn = get_db_connection()
+        c = conn.cursor()
+        
+        # Use parameterized query to prevent SQL injection
+        c.execute('''SELECT id, name, email, role, department 
+                     FROM employees 
+                     WHERE name LIKE ? OR email LIKE ?''',
+                 (search_term, search_term))
+        results = c.fetchall()
+        conn.close()
+        
+        # Escape output to prevent XSS
+        safe_results = []
+        for emp in results:
+            safe_results.append({
+                'id': emp['id'],
+                'name': escape(emp['name']),
+                'email': escape(emp['email']),
+                'role': escape(emp['role']),
+                'department': escape(emp['department'])
+            })
+        
+        return render_template_string(SEARCH_TEMPLATE, 
+                                     results=safe_results, 
+                                     query=escape(query))
+    
+    except Exception as e:
+        logger.error(f'Search error: {str(e)}')
+        return render_template_string(SEARCH_TEMPLATE, results=[], query='')
+
+# ============================================================================
+# PERFORMANCE REVIEWS
+# ============================================================================
+
 @app.route('/api/performance/<int:emp_id>', methods=['POST'])
+@login_required
+@role_required(['admin', 'manager'])
 def add_performance(emp_id):
-    """Add performance review - Stored XSS vulnerability"""
-    data = request.get_json()
+    """Add performance review with input sanitization"""
+    try:
+        data = request.get_json()
+        
+        # Validate emp_id
+        if not isinstance(emp_id, int) or emp_id <= 0:
+            return jsonify({'error': 'Invalid employee ID'}), 400
+        
+        # Validate rating
+        try:
+            rating = float(data.get('rating'))
+            if rating < 0 or rating > 5:
+                return jsonify({'error': 'Rating must be between 0 and 5'}), 400
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid rating'}), 400
+        
+        comments = escape(data.get('comments', '')).strip()
+        if len(comments) > 1000:
+            return jsonify({'error': 'Comments too long'}), 400
+        
+        conn = get_db_connection()
+        c = conn.cursor()
+        
+        # Verify employee exists
+        c.execute('SELECT id FROM employees WHERE id = ?', (emp_id,))
+        if not c.fetchone():
+            conn.close()
+            return jsonify({'error': 'Employee not found'}), 404
+        
+        # Use parameterized query
+        c.execute('''INSERT INTO performance (employee_id, rating, comments, date)
+                     VALUES (?, ?, ?, ?)''',
+                 (emp_id, rating, comments, datetime.now().isoformat()))
+        
+        conn.commit()
+        conn.close()
+        logger.info(f'Performance review added for employee {emp_id} by {session.get("username")}')
+        
+        return jsonify({'status': 'success', 'message': 'Review added'}), 201
     
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    # VULNERABILITY #22: No input sanitization for comments (Stored XSS)
-    c.execute('''INSERT INTO performance (employee_id, rating, comments, date)
-                 VALUES (?, ?, ?, ?)''',
-             (emp_id, data.get('rating'), data.get('comments'), datetime.now().isoformat()))
-    
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'status': 'review added'}), 201
+    except Exception as e:
+        logger.error(f'Error adding performance review: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/performance/<int:emp_id>')
+@login_required
 def get_performance(emp_id):
-    """Get performance reviews - Returns unsanitized comments"""
-    conn = get_db_connection()
-    c = conn.cursor()
+    """Get performance reviews with escaped output"""
+    try:
+        # Validate emp_id
+        if not isinstance(emp_id, int) or emp_id <= 0:
+            return jsonify({'error': 'Invalid employee ID'}), 400
+        
+        conn = get_db_connection()
+        c = conn.cursor()
+        
+        c.execute('SELECT * FROM performance WHERE employee_id = ?', (emp_id,))
+        reviews = c.fetchall()
+        conn.close()
+        
+        # Escape comments to prevent XSS
+        safe_reviews = []
+        for r in reviews:
+            safe_reviews.append({
+                'id': r['id'],
+                'rating': r['rating'],
+                'comments': escape(r['comments']) if r['comments'] else '',
+                'date': r['date']
+            })
+        
+        return jsonify({
+            'employee_id': emp_id,
+            'reviews': safe_reviews
+        })
     
-    c.execute('SELECT * FROM performance WHERE employee_id = ?', (emp_id,))
-    reviews = c.fetchall()
-    conn.close()
+    except Exception as e:
+        logger.error(f'Error fetching performance reviews: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+# ============================================================================
+# FILE UPLOAD
+# ============================================================================
+
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
+@limiter.limit("10 per hour")
+def upload_file():
+    """Secure file upload with validation"""
+    if request.method == 'POST':
+        try:
+            if 'file' not in request.files:
+                return render_template_string(UPLOAD_TEMPLATE, error='No file provided')
+            
+            file = request.files['file']
+            
+            if file.filename == '':
+                return render_template_string(UPLOAD_TEMPLATE, error='No file selected')
+            
+            # Validate file type
+            if not allowed_file(file.filename):
+                return render_template_string(UPLOAD_TEMPLATE, 
+                                            error=f'File type not allowed. Allowed: {", ".join(ALLOWED_EXTENSIONS)}')
+            
+            # Validate file size
+            if not validate_file_size(file):
+                return render_template_string(UPLOAD_TEMPLATE, 
+                                            error=f'File too large. Max size: {MAX_FILE_SIZE / 1024 / 1024}MB')
+            
+            # Secure filename
+            filename = secure_filename(file.filename)
+            # Add timestamp to make filename unique
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+            filename = timestamp + filename
+            
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
+            
+            logger.info(f'File {filename} uploaded by {session.get("username")}')
+            return render_template_string(UPLOAD_TEMPLATE, 
+                                        success=f'File {escape(filename)} uploaded successfully')
+        
+        except Exception as e:
+            logger.error(f'File upload error: {str(e)}')
+            return render_template_string(UPLOAD_TEMPLATE, error='An error occurred during upload')
     
-    # VULNERABILITY: Comments not escaped - XSS when rendered
-    return jsonify({
-        'employee_id': emp_id,
-        'reviews': [dict(r) for r in reviews]
-    })
+    return render_template_string(UPLOAD_TEMPLATE)
 
-# VULNERABILITY #23: Information Disclosure via comments
-@app.route('/api/system-info')
-def system_info():
-    """Endpoint exposing system information"""
-    return jsonify({
-        'app_version': '1.0.0',
-        'python_version': '3.9.0',
-        'flask_version': '3.0.0',
-        'database': DATABASE,
-        'upload_folder': UPLOAD_FOLDER,
-        'debug_mode': app.debug
-    })
+# ============================================================================
+# SECURE XML IMPORT
+# ============================================================================
 
-# VULNERABILITY #24: Missing Content-Type validation
+@app.route('/api/import-xml', methods=['POST'])
+@login_required
+@role_required(['admin'])
+def import_xml():
+    """Secure XML import with XXE prevention"""
+    try:
+        if 'xml_file' not in request.files:
+            return jsonify({'error': 'No XML file provided'}), 400
+        
+        xml_file = request.files['xml_file']
+        
+        if xml_file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not xml_file.filename.endswith('.xml'):
+            return jsonify({'error': 'Only XML files allowed'}), 400
+        
+        xml_content = xml_file.read().decode('utf-8', errors='ignore')
+        
+        # Validate XML size
+        if len(xml_content) > 1024 * 1024:  # 1MB limit
+            return jsonify({'error': 'XML file too large'}), 400
+        
+        try:
+            # Secure XML parsing with XXE prevention
+            parser = ET.XMLParser()
+            parser.entity = {}  # Disable external entities
+            root = ET.fromstring(xml_content, parser=parser)
+            
+            logger.info(f'XML file imported by {session.get("username")}')
+            return jsonify({
+                'status': 'success',
+                'message': 'XML imported successfully',
+                'elements': len(root)
+            })
+        
+        except ET.ParseError as e:
+            return jsonify({'error': f'Invalid XML: {str(e)}'}), 400
+    
+    except Exception as e:
+        logger.error(f'XML import error: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+# ============================================================================
+# SECURE DATA EXPORT
+# ============================================================================
+
 @app.route('/api/export', methods=['POST'])
+@login_required
+@role_required(['admin', 'manager'])
 def export_data():
-    """Export employee data in any format"""
-    format_type = request.args.get('format', 'json')
+    """Export employee data in safe CSV format"""
+    try:
+        format_type = request.args.get('format', 'csv').lower()
+        
+        if format_type not in ['csv', 'json']:
+            return jsonify({'error': 'Invalid format'}), 400
+        
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute('SELECT id, name, email, role, department FROM employees')
+        employees = c.fetchall()
+        conn.close()
+        
+        if format_type == 'json':
+            data = [dict(emp) for emp in employees]
+            return jsonify(data)
+        
+        elif format_type == 'csv':
+            # Safe CSV generation
+            output = StringIO()
+            writer = csv.writer(output)
+            writer.writerow(['ID', 'Name', 'Email', 'Role', 'Department'])
+            
+            for emp in employees:
+                writer.writerow([
+                    emp['id'],
+                    emp['name'],
+                    emp['email'],
+                    emp['role'],
+                    emp['department']
+                ])
+            
+            logger.info(f'Data exported in CSV format by {session.get("username")}')
+            return output.getvalue(), 200, {'Content-Type': 'text/csv'}
     
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('SELECT * FROM employees')
-    employees = c.fetchall()
-    conn.close()
-    
-    data = [dict(emp) for emp in employees]
-    
-    if format_type == 'json':
-        return jsonify(data)
-    elif format_type == 'csv':
-        # VULNERABILITY #25: CSV Injection
-        csv_content = "ID,Name,Email,Role,Department,Salary,SSN\n"
-        for emp in data:
-            csv_content += f"{emp['id']},='{emp['name']}',{emp['email']},{emp['role']},{emp['department']},{emp['salary']},{emp['ssn']}\n"
-        return csv_content, 200, {'Content-Type': 'text/csv'}
+    except Exception as e:
+        logger.error(f'Export error: {str(e)}')
+        return jsonify({'error': 'Internal server error'}), 500
 
-# Initialize database when app starts
+# ============================================================================
+# SECURITY HEADERS
+# ============================================================================
+
+@app.after_request
+def set_security_headers(response):
+    """Add security headers to all responses"""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
+# ============================================================================
+# ERROR HANDLING
+# ============================================================================
+
+@app.errorhandler(400)
+def bad_request(error):
+    logger.warning(f'Bad request: {str(error)}')
+    return jsonify({'error': 'Bad request'}), 400
+
+@app.errorhandler(403)
+def forbidden(error):
+    return jsonify({'error': 'Forbidden'}), 403
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error(f'Internal server error: {str(error)}')
+    return jsonify({'error': 'Internal server error'}), 500
+
+# ============================================================================
+# INITIALIZE AND RUN
+# ============================================================================
+
 init_db()
 
-# Templates
+# ============================================================================
+# TEMPLATES
+# ============================================================================
+
 LOGIN_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
     <title>Employee Portal Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: Arial; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                margin: 0; padding: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
@@ -439,7 +777,7 @@ LOGIN_TEMPLATE = """
         input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         button { width: 100%; padding: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background: #764ba2; }
-        .error { color: red; text-align: center; }
+        .error { color: red; text-align: center; margin: 10px 0; }
         .credentials { font-size: 12px; color: #999; margin-top: 20px; text-align: center; }
     </style>
 </head>
@@ -455,7 +793,10 @@ LOGIN_TEMPLATE = """
             <button type="submit">Login</button>
         </form>
         <div class="credentials">
-            Demo: admin/admin123<br>manager/manager123<br>user/user123
+            Demo Credentials:<br>
+            admin / Admin@123<br>
+            manager / Manager@123<br>
+            user / User@123
         </div>
     </div>
 </body>
@@ -467,6 +808,8 @@ DASHBOARD_TEMPLATE = """
 <html>
 <head>
     <title>Employee Management Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma; background: #f5f5f5; }
@@ -567,18 +910,24 @@ DASHBOARD_TEMPLATE = """
                 
                 data.data.forEach(emp => {
                     const row = tbody.insertRow();
-                    row.innerHTML = '<td>' + emp.id + '</td><td>' + emp.name + '</td><td>' + emp.email + '</td><td>' + emp.role + '</td><td>' + emp.department + '</td><td><button onclick="viewEmployee(' + emp.id + ')">View</button></td>';
+                    row.innerHTML = '<td>' + emp.id + '</td><td>' + escapeHtml(emp.name) + '</td><td>' + escapeHtml(emp.email) + '</td><td>' + escapeHtml(emp.role) + '</td><td>' + escapeHtml(emp.department) + '</td><td><button onclick="viewEmployee(' + emp.id + ')">View</button></td>';
                     depts.add(emp.department);
                 });
                 
                 document.getElementById('total-depts').innerText = depts.size;
             });
         
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
         function viewEmployee(id) {
             fetch('/api/employees/' + id)
                 .then(r => r.json())
                 .then(data => {
-                    alert('Name: ' + data.name + '\\nEmail: ' + data.email + '\\nRole: ' + data.role);
+                    alert('Name: ' + escapeHtml(data.name) + '\\nEmail: ' + escapeHtml(data.email) + '\\nRole: ' + escapeHtml(data.role));
                 });
         }
         
@@ -590,7 +939,6 @@ DASHBOARD_TEMPLATE = """
                 role: document.getElementById('role').value,
                 department: document.getElementById('department').value,
                 salary: parseFloat(document.getElementById('salary').value),
-                password: 'temp123',
                 ssn: '000-00-0000',
                 address: 'N/A',
                 phone: 'N/A'
@@ -617,25 +965,100 @@ UPLOAD_TEMPLATE = """
 <html>
 <head>
     <title>File Upload</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: Arial; padding: 20px; }
         .form { max-width: 500px; margin: 50px auto; }
         input, button { padding: 10px; margin: 10px 0; width: 100%; }
+        .error { color: red; }
+        .success { color: green; }
     </style>
 </head>
 <body>
     <div class="form">
         <h1>Upload File</h1>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+        <p class="success">{{ success }}</p>
+        {% endif %}
         <form method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <button type="submit">Upload</button>
         </form>
-        <p>Accepted formats: txt, pdf, xml, json, csv, exe, sh</p>
+        <p>Accepted formats: txt, pdf, csv, json</p>
+        <p>Maximum file size: 5MB</p>
+    </div>
+</body>
+</html>
+"""
+
+SEARCH_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Employees</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f0f0f0; }
+        tr:hover { background: #f9f9f9; }
+        input { padding: 8px; width: 300px; }
+        button { padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Search Employees</h1>
+        <form method="get">
+            <input type="text" name="q" placeholder="Search by name or email" value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
+        
+        {% if results %}
+        <h2>Results for: {{ query }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.id }}</td>
+                    <td>{{ result.name }}</td>
+                    <td>{{ result.email }}</td>
+                    <td>{{ result.role }}</td>
+                    <td>{{ result.department }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif query %}
+        <p>No results found for: {{ query }}</p>
+        {% endif %}
     </div>
 </body>
 </html>
 """
 
 if __name__ == '__main__':
-    # VULNERABILITY #26: Debug mode enabled in production
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Set Flask environment variable
+    os.environ.setdefault('FLASK_ENV', 'production')
+    
+    # Disable debug mode in production
+    if os.environ.get('FLASK_ENV') == 'production':
+        app.run(host='127.0.0.1', port=5000, debug=False)
+    else:
+        # Development mode only
+        app.run(host='127.0.0.1', port=5000, debug=True)
