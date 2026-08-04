@@ -97,7 +97,6 @@ def get_pod_metrics():
     return pod_data
 
 def fetch_trivy_data():
-    """Reads and parses Trivy JSON reports mounted via Kubernetes."""
     file_path = '/app/data/trivy-results.json'
     if not os.path.exists(file_path):
         return []
@@ -130,7 +129,8 @@ HTML_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASTRA-XDR | SOC Threat Center</title>
-    <meta http-equiv="refresh" content="10">
+    <!-- Auto refresh only on the main dashboard to prevent reading interruptions on other pages -->
+    {% if active_page == 'dashboard' %}<meta http-equiv="refresh" content="10">{% endif %}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -154,10 +154,9 @@ HTML_TEMPLATE = """
 
         .container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
         @media (min-width: 768px) { .container { padding: 2rem; } }
-        @media (min-width: 1024px) { .container { padding: 2.5rem; } }
-
+        
         .header { margin-bottom: 2rem; }
-        .header__top { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; }
+        .header__top { display: flex; flex-direction: column; gap: 1.5rem; }
         @media (min-width: 768px) { .header__top { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 2rem; } }
 
         .header__title { flex: 1; }
@@ -176,94 +175,77 @@ HTML_TEMPLATE = """
             background: var(--surface); border: 1px solid var(--border);
             border-radius: 12px; padding: 1.25rem; text-align: center; transition: all 0.3s ease;
         }
-        .stat-box:hover { border-color: var(--brand-primary); box-shadow: 0 0 20px rgba(88, 166, 255, 0.15); }
         .stat-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
         .stat-value { font-size: 1.75rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
         .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; box-shadow: 0 0 8px var(--success); }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
         .stat-value.critical { color: var(--danger); }
         .stat-value.warning { color: var(--warning); }
         .stat-value.success { color: var(--success); }
 
-        .section-title { font-size: 1.25rem; font-weight: 700; margin: 2rem 0 1.5rem 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; }
-        @media (min-width: 768px) { .section-title { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1.75rem; } }
+        /* NAVIGATION BAR */
+        .nav-bar {
+            display: flex; gap: 0.5rem; margin-top: 1.5rem; background: var(--surface);
+            padding: 0.5rem; border-radius: 10px; border: 1px solid var(--border); overflow-x: auto;
+        }
+        .nav-btn {
+            text-decoration: none; color: var(--text-secondary); padding: 0.6rem 1.5rem;
+            border-radius: 6px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s ease;
+            white-space: nowrap; border: 1px solid transparent;
+        }
+        .nav-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+        .nav-btn.active { color: var(--brand-primary); background: rgba(88, 166, 255, 0.1); border: 1px solid rgba(88, 166, 255, 0.2); }
 
+        .section-title { font-size: 1.25rem; font-weight: 700; margin: 2rem 0 1.5rem 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; }
+        
         .pod-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-bottom: 2rem; }
         @media (min-width: 640px) { .pod-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .pod-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (min-width: 1400px) { .pod-grid { grid-template-columns: repeat(4, 1fr); } }
 
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s ease; }
-        .card:hover { border-color: var(--border-light); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
-
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
         .pod-card__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .pod-card__name { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 600; color: var(--brand-primary); word-break: break-all; flex: 1; min-width: 0; }
-        .pod-card__status { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .pod-card__name { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 600; color: var(--brand-primary); word-break: break-all; flex: 1; }
+        .pod-card__status { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
         .pod-card__status.running { background: rgba(63, 185, 80, 0.15); color: var(--success); border: 1px solid rgba(63, 185, 80, 0.3); }
-        .pod-card__status.pending { background: rgba(210, 153, 34, 0.15); color: var(--warning); border: 1px solid rgba(210, 153, 34, 0.3); }
-        .pod-card__status.error { background: rgba(218, 54, 51, 0.15); color: var(--danger); border: 1px solid rgba(218, 54, 51, 0.3); }
 
-        .metric { margin-bottom: 1.5rem; }
-        .metric:last-child { margin-bottom: 0; }
         .metric__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
         .metric__label { font-size: 0.875rem; color: var(--text-secondary); font-weight: 500; }
         .metric__value { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 600; color: var(--brand-primary); }
-        .metric__bar { width: 100%; height: 6px; background: var(--border); border-radius: 6px; overflow: hidden; }
-        .metric__fill { height: 100%; border-radius: 6px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .metric__bar { width: 100%; height: 6px; background: var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 1rem; }
+        .metric__fill { height: 100%; border-radius: 6px; }
         .metric__fill.cpu { background: linear-gradient(90deg, #3fb950, #1f6feb); }
         .metric__fill.memory { background: linear-gradient(90deg, #58a6ff, #da3633); }
 
         .table-wrapper { overflow-x: auto; margin-bottom: 2rem; }
-        .card-table { padding: 1.5rem; }
+        .card-table { padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;}
         .card-table h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary); }
         table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
         thead { background: var(--surface-light); border-bottom: 2px solid var(--border); }
-        th { text-align: left; padding: 1rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+        th { text-align: left; padding: 1rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
         td { padding: 1rem; border-bottom: 1px solid var(--border); color: var(--text-primary); }
         tbody tr:hover { background: rgba(88, 166, 255, 0.05); }
 
         .cell-time { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-secondary); }
-        .cell-priority { display: inline-block; }
-        .priority-badge { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .priority-badge { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
         .priority-badge.critical { background: rgba(218, 54, 51, 0.15); color: var(--danger); border: 1px solid rgba(218, 54, 51, 0.3); }
         .priority-badge.warning { background: rgba(210, 153, 34, 0.15); color: var(--warning); border: 1px solid rgba(210, 153, 34, 0.3); }
         .priority-badge.notice { background: rgba(88, 166, 255, 0.15); color: var(--brand-primary); border: 1px solid rgba(88, 166, 255, 0.3); }
-
+        
         .cell-pod { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--brand-primary); font-weight: 600; }
         .cell-rule { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary); }
         .rule-name { color: var(--text-primary); font-weight: 600; display: block; margin-bottom: 0.25rem; }
-        .cell-action { text-align: center; }
-
-        .btn-isolate { background: linear-gradient(135deg, var(--danger), #9e2c2c); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; transition: all 0.2s ease; letter-spacing: 0.5px; }
-        .btn-isolate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(218, 54, 51, 0.3); }
-        .btn-isolate:active { transform: translateY(0); }
-        .isolated-tag { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--success); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .checkmark { width: 16px; height: 16px; background: var(--success); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: var(--bg-dark); font-size: 0.75rem; font-weight: 700; }
         
-        .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-secondary); }
-        .empty-state__icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; animation: float 3s ease-in-out infinite; }
-        .empty-state__text { font-size: 0.95rem; margin: 0; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        /* AI Report Overrides */
+        .btn-isolate { background: linear-gradient(135deg, var(--danger), #9e2c2c); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .isolated-tag { color: var(--success); font-weight: 600; font-size: 0.75rem; }
+        
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); }
+        .empty-state__icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+        
+        /* AI Report Formatting */
         .ai-report { line-height: 1.8; font-size: 0.95rem; color: var(--text-primary); }
-        .ai-report h1 { font-size: 1.5rem; color: var(--brand-primary); margin: 1.5rem 0 1rem 0; font-weight: 700; }
-        .ai-report h2 { font-size: 1.25rem; color: var(--brand-primary); margin: 1.25rem 0 0.75rem 0; font-weight: 700; }
-        .ai-report h3 { font-size: 1.1rem; color: var(--brand-primary); margin: 1rem 0 0.5rem 0; font-weight: 700; }
-        .ai-report code { font-family: 'JetBrains Mono', monospace; background: var(--surface-light); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--brand-primary); font-size: 0.85rem; }
-        .ai-report pre { background: var(--surface-light); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--success); line-height: 1.5; }
-        .ai-report ul, .ai-report ol { padding-left: 1.5rem; margin: 0.75rem 0; }
-        .ai-report li { margin-bottom: 0.5rem; }
-        .ai-report p { margin: 0.75rem 0; }
-
-        @media (max-width: 768px) {
-            table { font-size: 0.75rem; }
-            th, td { padding: 0.75rem; }
-            .btn-isolate { padding: 0.375rem 0.75rem; font-size: 0.7rem; }
-            .cell-rule { max-width: 150px; word-break: break-word; }
-        }
-        .pod-grid.empty { grid-template-columns: 1fr; }
+        .ai-report h1, .ai-report h2, .ai-report h3 { color: var(--brand-primary); margin: 1.5rem 0 1rem 0; font-weight: 700; }
+        .ai-report code { background: var(--surface-light); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--brand-primary); font-family: 'JetBrains Mono', monospace; }
+        .ai-report pre { background: var(--surface-light); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; color: var(--success); }
     </style>
     <script>
         function remediatePod(podName, alertIndex) {
@@ -284,7 +266,8 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        
+        <!-- Global Header & Navigation (Visible on all pages) -->
         <header class="header">
             <div class="header__top">
                 <div class="header__title">
@@ -311,11 +294,21 @@ HTML_TEMPLATE = """
                     </div>
                 </div>
             </div>
+            
+            <!-- Sleek Navigation Tabs -->
+            <nav class="nav-bar">
+                <a href="/" class="nav-btn {% if active_page == 'dashboard' %}active{% endif %}">📊 Overview Dashboard</a>
+                <a href="/trivy" class="nav-btn {% if active_page == 'trivy' %}active{% endif %}">🛡️ Trivy Security Scan</a>
+                <a href="/AIReport" class="nav-btn {% if active_page == 'ai' %}active{% endif %}">🤖 AI Security Analysis</a>
+            </nav>
         </header>
 
-        <!-- Cluster Health Section -->
+        <!-- PAGE CONTENT ROUTING USING JINJA -->
+        
+        {% if active_page == 'dashboard' %}
+        <!-- ======================= DASHBOARD PAGE ======================= -->
         <section>
-            <h2 class="section-title">📦 Cluster Health</h2>
+            <h2 class="section-title">📦 Live Cluster Health</h2>
             <div class="pod-grid {% if not pods %}empty{% endif %}">
                 {% for pod in pods %}
                 <div class="card">
@@ -323,44 +316,27 @@ HTML_TEMPLATE = """
                         <div class="pod-card__name">{{ pod.name }}</div>
                         <div class="pod-card__status {{ pod.status|lower }}">{{ pod.status }}</div>
                     </div>
-                    
-                    <div class="metric">
-                        <div class="metric__header">
-                            <span class="metric__label">CPU Utilization</span>
-                            <span class="metric__value">{{ pod.cpu }} mC</span>
-                        </div>
-                        <div class="metric__bar">
-                            <div class="metric__fill cpu" style="width: {{ pod.cpu_pct }}%"></div>
-                        </div>
+                    <div class="metric__header">
+                        <span class="metric__label">CPU Utilization</span>
+                        <span class="metric__value">{{ pod.cpu }} mC</span>
                     </div>
-
-                    <div class="metric">
-                        <div class="metric__header">
-                            <span class="metric__label">Memory Usage</span>
-                            <span class="metric__value">{{ pod.mem }} MB</span>
-                        </div>
-                        <div class="metric__bar">
-                            <div class="metric__fill memory" style="width: {{ pod.mem_pct }}%"></div>
-                        </div>
+                    <div class="metric__bar"><div class="metric__fill cpu" style="width: {{ pod.cpu_pct }}%"></div></div>
+                    <div class="metric__header">
+                        <span class="metric__label">Memory Usage</span>
+                        <span class="metric__value">{{ pod.mem }} MB</span>
                     </div>
+                    <div class="metric__bar"><div class="metric__fill memory" style="width: {{ pod.mem_pct }}%"></div></div>
                 </div>
                 {% else %}
-                <div class="card empty">
-                    <div class="empty-state">
-                        <span class="empty-state__icon">📭</span>
-                        <p class="empty-state__text">No active pods in cluster</p>
-                    </div>
-                </div>
+                <div class="card empty"><div class="empty-state"><span class="empty-state__icon">📭</span><p>No active pods in cluster</p></div></div>
                 {% endfor %}
             </div>
         </section>
 
-        <!-- Runtime Security Incidents Section -->
         <section>
             <h2 class="section-title">⚠️ Runtime Security Events (Falco)</h2>
             <div class="table-wrapper">
-                <div class="card card-table">
-                    <h3>Detected Anomalies & Remediation Actions</h3>
+                <div class="card-table">
                     <table>
                         <thead>
                             <tr>
@@ -375,38 +351,17 @@ HTML_TEMPLATE = """
                             {% for a in alerts %}
                             <tr>
                                 <td class="cell-time">{{ a.time }}</td>
-                                <td class="cell-priority">
-                                    <span class="priority-badge {% if a.priority == 'Critical' or a.priority == 'Error' %}critical{% elif a.priority == 'Warning' %}warning{% else %}notice{% endif %}">
-                                        {{ a.priority }}
-                                    </span>
-                                </td>
+                                <td><span class="priority-badge {% if a.priority in ['Critical', 'Error'] %}critical{% elif a.priority == 'Warning' %}warning{% else %}notice{% endif %}">{{ a.priority }}</span></td>
                                 <td class="cell-pod">{{ a.pod or '—' }}</td>
-                                <td class="cell-rule">
-                                    <span class="rule-name">{{ a.rule }}</span>
-                                    {{ a.output }}
-                                </td>
+                                <td class="cell-rule"><span class="rule-name">{{ a.rule }}</span>{{ a.output }}</td>
                                 <td class="cell-action">
-                                    {% if a.remediated %}
-                                        <span class="isolated-tag">
-                                            <span class="checkmark">✓</span>
-                                            ISOLATED
-                                        </span>
-                                    {% elif a.pod and a.pod != 'Unknown' %}
-                                        <button class="btn-isolate" onclick="remediatePod('{{ a.pod }}', {{ loop.index0 }})">Isolate</button>
-                                    {% else %}
-                                        <span style="color: var(--text-tertiary); font-size: 0.75rem;">N/A</span>
-                                    {% endif %}
+                                    {% if a.remediated %}<span class="isolated-tag">✓ ISOLATED</span>
+                                    {% elif a.pod and a.pod != 'Unknown' %}<button class="btn-isolate" onclick="remediatePod('{{ a.pod }}', {{ loop.index0 }})">Isolate</button>
+                                    {% else %}<span style="color: var(--text-tertiary);">N/A</span>{% endif %}
                                 </td>
                             </tr>
                             {% else %}
-                            <tr>
-                                <td colspan="5">
-                                    <div class="empty-state">
-                                        <span class="empty-state__icon">✓</span>
-                                        <p class="empty-state__text">No threats detected. Cluster in secure state.</p>
-                                    </div>
-                                </td>
-                            </tr>
+                            <tr><td colspan="5"><div class="empty-state"><span class="empty-state__icon">✓</span><p>No threats detected. Cluster in secure state.</p></div></td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -414,12 +369,12 @@ HTML_TEMPLATE = """
             </div>
         </section>
 
-        <!-- Static Security (Trivy) Section -->
+        {% elif active_page == 'trivy' %}
+        <!-- ======================= TRIVY PAGE ======================= -->
         <section>
-            <h2 class="section-title">🛡️ Static Image Security (Trivy)</h2>
+            <h2 class="section-title">🛡️ Static Image Security Report (Trivy)</h2>
             <div class="table-wrapper">
-                <div class="card card-table">
-                    <h3>Vulnerability Scan Report</h3>
+                <div class="card-table">
                     <table>
                         <thead>
                             <tr>
@@ -433,7 +388,7 @@ HTML_TEMPLATE = """
                             {% for t in trivy_alerts %}
                             <tr>
                                 <td class="cell-pod">{{ t.id }}</td>
-                                <td class="cell-priority">
+                                <td>
                                     <span class="priority-badge {% if t.severity in ['CRITICAL', 'HIGH'] %}critical{% elif t.severity == 'MEDIUM' %}warning{% else %}notice{% endif %}">
                                         {{ t.severity }}
                                     </span>
@@ -445,7 +400,7 @@ HTML_TEMPLATE = """
                             <tr>
                                 <td colspan="4">
                                     <div class="empty-state">
-                                        <span class="empty-state__icon">✓</span>
+                                        <span class="empty-state__icon">🛡️</span>
                                         <p class="empty-state__text">No static vulnerabilities found or waiting for CI/CD scan.</p>
                                     </div>
                                 </td>
@@ -457,11 +412,11 @@ HTML_TEMPLATE = """
             </div>
         </section>
 
-        <!-- AI Analysis Section -->
+        {% elif active_page == 'ai' %}
+        <!-- ======================= AI REPORT PAGE ======================= -->
         <section>
             <h2 class="section-title">🤖 AI Security Analysis (Gemini)</h2>
-            <div class="card card-table">
-                <h3>Automated DevSecOps Summary</h3>
+            <div class="card-table" style="padding: 2.5rem;">
                 {% if ai_report %}
                     <div id="ai-report-content" class="ai-report"></div>
                     <script>
@@ -471,28 +426,53 @@ HTML_TEMPLATE = """
                 {% else %}
                     <div class="empty-state">
                         <span class="empty-state__icon">📊</span>
-                        <p class="empty-state__text">No scan reports received. Integrate Trivy, SonarQube, OWASP ZAP via CI/CD pipeline.</p>
+                        <p class="empty-state__text">No scan reports received yet. Waiting for AI Remediation CI/CD step to complete.</p>
                     </div>
                 {% endif %}
             </div>
         </section>
+        {% endif %}
+
     </div>
 </body>
 </html>
 """
 
+# --- ROUTES ---
+
 @app.route('/')
 @requires_auth
 def index():
     pods = get_pod_metrics()
+    return render_template_string(
+        HTML_TEMPLATE,
+        active_page='dashboard',
+        alerts=list(reversed(alerts)),
+        pods=pods
+    )
+
+@app.route('/trivy')
+@requires_auth
+def trivy_page():
     trivy_data = fetch_trivy_data()
     return render_template_string(
         HTML_TEMPLATE,
-        alerts=list(reversed(alerts)),
-        pods=pods,
-        trivy_alerts=trivy_data,
+        active_page='trivy',
+        alerts=list(reversed(alerts)), # Passed to keep header threat level accurate
+        trivy_alerts=trivy_data
+    )
+
+@app.route('/AIReport')
+@requires_auth
+def ai_page():
+    return render_template_string(
+        HTML_TEMPLATE,
+        active_page='ai',
+        alerts=list(reversed(alerts)), # Passed to keep header threat level accurate
         ai_report=latest_ai_report
     )
+
+# --- APIs ---
 
 @app.route('/api/trivy-alerts', methods=['GET'])
 @requires_auth
