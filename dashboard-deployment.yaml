@@ -2,8 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: astra-xdr-dashboard
-  labels:
-    app: astra-xdr-dashboard
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -14,11 +13,36 @@ spec:
       labels:
         app: astra-xdr-dashboard
     spec:
+      serviceAccountName: astra-dashboard-sa
       terminationGracePeriodSeconds: 5
-      serviceAccountName: astra-dashboard-sa # Added the service account here
       containers:
-        - name: astra-xdr-dashboard
-          image: mrrobot7781/astra-xdr-dashboard:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 5000
+      - name: dashboard
+        image: docker.io/mrrobot7781/astra-dashboard:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        # 👇 Trivy Dashboard ke liye Volume Mount 👇
+        volumeMounts:
+        - name: trivy-data
+          mountPath: /app/data
+      # 👇 EC2 Host se JSON data laane ke liye 👇
+      volumes:
+      - name: trivy-data
+        hostPath:
+          path: /home/ubuntu/project-xdr
+          type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: astra-xdr-dashboard-service
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    app: astra-xdr-dashboard
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 30081
