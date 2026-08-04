@@ -3,10 +3,10 @@
   "Trivy": {
     "Version": "0.73.0"
   },
-  "ReportID": "019fcdf5-5b11-7978-88dd-b82a4da82bf5",
-  "CreatedAt": "2026-08-04T18:07:16.753623416Z",
-  "ArtifactID": "sha256:36fb80322f402fe42a87098601274eb15f5bba46610440691f13c7fde8fbced0",
-  "ArtifactName": "mrrobot7781/astra-xdr-app:7eb0b597ef1e1413b9b77a14d28936fc7601b428",
+  "ReportID": "019fce02-67aa-7cb0-b427-695d749f0a83",
+  "CreatedAt": "2026-08-04T18:21:31.9468329Z",
+  "ArtifactID": "sha256:46fe5110da1b0f911a89122ebb853d96adbadfb045734016ce095b94aebe52de",
+  "ArtifactName": "mrrobot7781/astra-xdr-app:52e98bb667728668ec602ab8f2224323865ff799",
   "ArtifactType": "container_image",
   "Metadata": {
     "Size": 135371776,
@@ -14,25 +14,25 @@
       "Family": "debian",
       "Name": "13.6"
     },
-    "ImageID": "sha256:fef39d59b5fae52c6732d2f55dfc2bcf013a16cb7b01674a3bf174ffe9d33fac",
+    "ImageID": "sha256:1beacd5c5b0f66b335a9a7b2a1df689e0d191b73ea036c798e9ec71996fb2f1a",
     "DiffIDs": [
       "sha256:f2ec4de84f559f5c7be4233b589cdbdbb5507807e05621b77320edd55a1f2a0f",
       "sha256:6a8e860a2471d53cc54b6dbd0c9e6c67cbee5e5dc89af0e4d6f93ff1de0ba4f3",
       "sha256:ea06dab957fd2074c14e3691aac598500649d7f72d82e0e7c53a4074c440687a",
       "sha256:85579ebf440f0e2322ab94aff3535e2f4be4388c7aefcfbad531bdadcc440c7c",
-      "sha256:d15d01d5231ec04ba0bc25279430bdb135e6380ae05559ab27c20e9fe395b045",
-      "sha256:a13581cad7b268f31c1eb3f83a6ceb1fe1ad406bab252859ad38bf472e718bfe",
-      "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7",
-      "sha256:6989ae760e619bc8d53b79f3ed1926068c3011320844cdc2231dd565695cae70"
+      "sha256:af8353627bebe98c50d1652b160b36d6cd7000d61b490100eaf7d817a3fcb28c",
+      "sha256:719518ea1582a3a755aa34b267447f314a4435ec51661de40b71ea7204b05176",
+      "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006",
+      "sha256:1aa945eed6a3ffaf58b83baafa467180dc7247f363bfdcc0369749e5af504a0a"
     ],
     "RepoTags": [
-      "mrrobot7781/astra-xdr-app:7eb0b597ef1e1413b9b77a14d28936fc7601b428",
+      "mrrobot7781/astra-xdr-app:52e98bb667728668ec602ab8f2224323865ff799",
       "mrrobot7781/astra-xdr-app:latest"
     ],
-    "Reference": "mrrobot7781/astra-xdr-app:7eb0b597ef1e1413b9b77a14d28936fc7601b428",
+    "Reference": "mrrobot7781/astra-xdr-app:52e98bb667728668ec602ab8f2224323865ff799",
     "ImageConfig": {
       "architecture": "amd64",
-      "created": "2026-08-04T18:06:56.502648201Z",
+      "created": "2026-08-04T18:21:08.17580855Z",
       "history": [
         {
           "created": "2026-07-13T00:00:00Z",
@@ -91,39 +91,39 @@
           "empty_layer": true
         },
         {
-          "created": "2026-08-04T18:06:51Z",
+          "created": "2026-08-04T18:21:04Z",
           "created_by": "ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2026-08-04T18:06:51Z",
+          "created": "2026-08-04T18:21:04Z",
           "created_by": "WORKDIR /app",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-08-04T18:06:51Z",
+          "created": "2026-08-04T18:21:04Z",
           "created_by": "COPY requirements.txt . # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-08-04T18:06:56Z",
+          "created": "2026-08-04T18:21:08Z",
           "created_by": "RUN /bin/sh -c pip install --no-cache-dir -r requirements.txt # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-08-04T18:06:56Z",
+          "created": "2026-08-04T18:21:08Z",
           "created_by": "COPY app.py . # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-08-04T18:06:56Z",
+          "created": "2026-08-04T18:21:08Z",
           "created_by": "EXPOSE map[5000/tcp:{}]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2026-08-04T18:06:56Z",
+          "created": "2026-08-04T18:21:08Z",
           "created_by": "CMD [\"python\" \"app.py\"]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
@@ -137,10 +137,10 @@
           "sha256:6a8e860a2471d53cc54b6dbd0c9e6c67cbee5e5dc89af0e4d6f93ff1de0ba4f3",
           "sha256:ea06dab957fd2074c14e3691aac598500649d7f72d82e0e7c53a4074c440687a",
           "sha256:85579ebf440f0e2322ab94aff3535e2f4be4388c7aefcfbad531bdadcc440c7c",
-          "sha256:d15d01d5231ec04ba0bc25279430bdb135e6380ae05559ab27c20e9fe395b045",
-          "sha256:a13581cad7b268f31c1eb3f83a6ceb1fe1ad406bab252859ad38bf472e718bfe",
-          "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7",
-          "sha256:6989ae760e619bc8d53b79f3ed1926068c3011320844cdc2231dd565695cae70"
+          "sha256:af8353627bebe98c50d1652b160b36d6cd7000d61b490100eaf7d817a3fcb28c",
+          "sha256:719518ea1582a3a755aa34b267447f314a4435ec51661de40b71ea7204b05176",
+          "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006",
+          "sha256:1aa945eed6a3ffaf58b83baafa467180dc7247f363bfdcc0369749e5af504a0a"
         ]
       },
       "config": {
@@ -183,25 +183,25 @@
       },
       {
         "Size": 1536,
-        "DiffID": "sha256:d15d01d5231ec04ba0bc25279430bdb135e6380ae05559ab27c20e9fe395b045"
+        "DiffID": "sha256:af8353627bebe98c50d1652b160b36d6cd7000d61b490100eaf7d817a3fcb28c"
       },
       {
         "Size": 2560,
-        "DiffID": "sha256:a13581cad7b268f31c1eb3f83a6ceb1fe1ad406bab252859ad38bf472e718bfe"
+        "DiffID": "sha256:719518ea1582a3a755aa34b267447f314a4435ec51661de40b71ea7204b05176"
       },
       {
         "Size": 8706048,
-        "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+        "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
       },
       {
         "Size": 25600,
-        "DiffID": "sha256:6989ae760e619bc8d53b79f3ed1926068c3011320844cdc2231dd565695cae70"
+        "DiffID": "sha256:1aa945eed6a3ffaf58b83baafa467180dc7247f363bfdcc0369749e5af504a0a"
       }
     ]
   },
   "Results": [
     {
-      "Target": "mrrobot7781/astra-xdr-app:7eb0b597ef1e1413b9b77a14d28936fc7601b428 (debian 13.6)",
+      "Target": "mrrobot7781/astra-xdr-app:52e98bb667728668ec602ab8f2224323865ff799 (debian 13.6)",
       "Class": "os-pkgs",
       "Type": "debian",
       "Packages": [
@@ -7743,7 +7743,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:1511402e5626d2663166e0fb48d695c91d6a684a60592c3260eaf55015cb1677",
+          "Fingerprint": "sha256:05d1f71406146bdc6125ebef1d491afc03bc2c741732390c025d148bdd405597",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -7771,7 +7771,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:7a4948e1e5f523950f9e9cb37af210fbdec386b83d78362243659e0a88c12203",
+          "Fingerprint": "sha256:86a0287748a93b80a5ab29e1daf6062da48afbbc288e9aa413c772467bdc5c77",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -7823,7 +7823,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:6476afc50b35fe48faaaec6e3b386dc6e40c7af385b45e7b1307aa7f80834c42",
+          "Fingerprint": "sha256:e51a3a1c1184f2dbab3d96751fb6558b947892bbf544889ff83fdfb5ccade28a",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -7882,7 +7882,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:b3275890b11596457bfb24e9146a0ba33b9e8d4020be946cd670862bed65daa4",
+          "Fingerprint": "sha256:475d6681ac5bfe053c2b745cf2bd3894d5e21d1a8729ad9c9f3217d497cfb18e",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -7936,7 +7936,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:aa1c338fde4e97b79a38b54b716555827c6bc19bd7d59bb57eff965bc1b3df8c",
+          "Fingerprint": "sha256:da75e4a9194dce843738f62a3868556dd8bbf5c4e5466f6955f1f1f5d9e16412",
           "Title": "GNU gzip contains a global buffer overflow vulnerability in the LZH de ...",
           "Description": "GNU gzip contains a global buffer overflow vulnerability in the LZH decompression logic caused by improper reuse of shared global state between different decompression formats within a single execution. GNU gzip maintains a global array that is shared across the LZ77, LZW, and LZH decompression routines and is not reinitialized between files processed in the same invocation.\nBy decompressing a specially crafted LZW file followed by a specially crafted LZH file in a single gzip -d command, an attacker can poison the shared global state and subsequently trigger an out‑of‑bounds read in the LZH decoder. The LZH decompression logic follows stale values left in the shared array, causing reads past the end of the allocated global buffer.\n\nThis issue has been fixed in the commit 63dbf6b3b9e6e781df1a6a64e609b10e23969681",
           "Severity": "HIGH",
@@ -7985,7 +7985,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:734ec9dce08381768f56e3909fa6a2c5263847055a5b10c16cc971b7a1c987fb",
+          "Fingerprint": "sha256:f5625b432582d60103b80b8c8e178e74bf594d55ad06a31f911b946c4c60d31e",
           "Title": "gzip: gzip: Arbitrary file overwrite via insecure temporary file handling in gzexe utility",
           "Description": "GNU gzip contains a vulnerability in the gzexe utility related to insecure temporary file handling. When the mktemp utility is not available in the user’s PATH, gzexe falls back to constructing a temporary file path based solely on the process ID (PID). This predictable filename is created without exclusive access or existence checks.\nA local attacker can pre‑create the predicted temporary file path as a symbolic link pointing to an arbitrary file writable by the victim. When gzexe runs, it follows the symlink and overwrites the target file, resulting in a time‑of‑check to time‑of‑use (TOCTOU) condition that allows arbitrary file overwrite.\n\nThis issue has been fixed in the commit 4e6f8b24ab823146ab8776f0b7fe486ab34d4269",
           "Severity": "MEDIUM",
@@ -8038,7 +8038,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:a493b39d5a001dc9e87e829bd2d9297973ae7290bbcf7a287e7e9b0f4fb16410",
+          "Fingerprint": "sha256:5a765ae304df8d0231d1633dc88a7b27e199e28f4107a837e4b469435a2ff618",
           "Title": "acl: Symlink traversal privilege escalation via libacl functions",
           "Description": "acl before version 2.4.0 contains a symlink traversal vulnerability in the libacl pathname-based functions acl_get_file(), acl_set_file(), acl_extended_file(), and acl_delete_def_file() that allows local attackers to escalate privileges by replacing any pathname component with a symbolic link. Attackers who control any component of a pathname processed by a privileged caller can redirect ACL read or write operations to arbitrary files or directories, enabling unauthorized manipulation of access control lists and local privilege escalation.",
           "Severity": "HIGH",
@@ -8105,7 +8105,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:f1941e9de6b78465afed1a99efba328f4a00b42469d1fafe410c6bbc3b6aae4b",
+          "Fingerprint": "sha256:854326f12b742e85ac6e2024be1ee2bceac6abe2edab8899c757d9d8bddf81c0",
           "Title": "acl: TOCTOU Symlink Traversal via getfacl/setfacl",
           "Description": "acl before version 2.4.0 contains a time-of-check to time-of-use (TOCTOU) race condition vulnerability that allows local attackers to escalate privileges by replacing a pathname component with a symbolic link between an lstat() check and subsequent symlink-following operations such as stat(), chown(), chmod(), acl_get_file(), and acl_set_file(). Attackers who control a pathname component can redirect file access control list operations to arbitrary files when getfacl, setfacl, or chacl is invoked by a privileged process over an attacker-controlled path, resulting in local privilege escalation.",
           "Severity": "MEDIUM",
@@ -8166,7 +8166,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:939c3fc84def171b91c1e83cea41670757e0d9690875b2dbab5ccb43ca85fad9",
+          "Fingerprint": "sha256:5d46dd06de9806366adc6f14275dc64925349024adf650d66b35be7ed3589ccf",
           "Title": "attr: Symlink Traversal Privilege Escalation via getfattr and setfattr",
           "Description": "attr before version 2.6.0 contains a symlink traversal vulnerability in the getfattr and setfattr utilities that allows local attackers to escalate privileges by replacing a pathname component with a symbolic link during directory hierarchy traversal. Attackers who control a pathname component can redirect getfattr and setfattr operations to arbitrary files by substituting a symlink, leading to local privilege escalation when getfattr or setfattr is invoked by a privileged process over an attacker-controlled path.",
           "Severity": "MEDIUM",
@@ -8216,7 +8216,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:ec8f638c2491572819d6e8cb8d0b8627101741b2cf0e2ebe504d38339053966f",
+          "Fingerprint": "sha256:90a9d0cf609135997635565298a379c83fc16a4da50f10085d1646f9a466ebd0",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -8244,7 +8244,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:51d8a56bfef8cdb5648c4b4238ed006c6a340969c58fcae76456c71c58d62966",
+          "Fingerprint": "sha256:84664f7b79b0cb3413f498644b0fa7d0ab0fb560618a8b8196343897f71b3214",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -8296,7 +8296,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:a4af50eba0c913500a0486db6754d0c31c06b2fc20eed430312d973e606935e5",
+          "Fingerprint": "sha256:844a2b637d29f86b113a587779d41a33086810a3117fdb1fd8435109c4bbec97",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -8355,7 +8355,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:bbfe910f81f8fa36c9261aa249d4bac92ce180a51f39828e0fc6ea55f5f76ae6",
+          "Fingerprint": "sha256:2eedcd7358d469768894847581fe888c0ead432f4d4a45453c978df792c58885",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -8408,7 +8408,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:426f7d900220770afcf1bce5911e95dffc10e7536b723fe50390fa12713eee0f",
+          "Fingerprint": "sha256:1b68aefd770da3f6d1fd85d48f562f2ed55c0ab099b8ca1ee6a3f698c3d3f406",
           "Title": "bzip2: bzip2: Denial of Service in bzip2recover via a specially crafted file",
           "Description": "bzip2 contains an off‑by‑one error in the bzip2recover utility. When processing a specially crafted file, the application performs an out‑of‑bounds write to a global buffer, resulting in memory corruption and a crash (denial of service).\n\nThis issue was fixed in bzip2 patch 35d122a3df8b0cc4082a4d89fdc6ee99f375fe67",
           "Severity": "MEDIUM",
@@ -8456,7 +8456,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:fe1e4a9122d2691f14de70a4e8cfb1dcea4ee74dcfbbf2dbfba4f0d4c9227278",
+          "Fingerprint": "sha256:82c14ac2efb94de994a06df92f120e5a4f8918158033c3d80d957d807576870b",
           "Title": "glibc: glibc: Out-of-bounds write via TSIG record processing",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.2 and newer fail to enforce the caller-supplied buffer length, and can result in an out-of-bounds write when printing TSIG records.",
           "Severity": "MEDIUM",
@@ -8523,7 +8523,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:9ddc7d8f4bf1e6c44d84426c6cbd18bf2966370ed990a23a64d630cfe8e4ef78",
+          "Fingerprint": "sha256:bf8bfa62d812484a819d88acfb5df5fbd5414d7f387d0e5253b312c6530ae3b1",
           "Title": "glibc: glibc: Heap Buffer Overflow in `scanf` with `%mc` format specifier and large width",
           "Description": "Calling the scanf family of functions with a %mc (malloc'd character match) in the GNU C Library version 2.7 to version 2.43 with a format width specifier with an explicit width greater than 1024 could result in a one byte heap buffer overflow.",
           "Severity": "MEDIUM",
@@ -8586,7 +8586,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:b0b30a46bf469cac39710e73495e18330bffce62aa5e6590d4db2f628bf04c04",
+          "Fingerprint": "sha256:5d5815e2a08f0f3ca1cd3ca8fe9174f347b4846cae75719ffc3a8f95c83a577b",
           "Title": "glibc: glibc: Information disclosure or denial of service via ungetwc function with specific wide character encodings",
           "Description": "Calling the ungetwc function on a FILE stream with wide characters encoded in a character set that has overlaps between its single byte and multi-byte character encodings, in the GNU C Library version 2.43 or earlier, may result in an attempt to read bytes before an allocated buffer, potentially resulting in unintentional disclosure of neighboring data in the heap, or a program crash.\n\nA bug in the wide character pushback implementation (_IO_wdefault_pbackfail in libio/wgenops.c) causes ungetwc() to operate on the regular character buffer (fp-\u003e_IO_read_ptr) instead of the actual wide-stream read pointer (fp-\u003e_wide_data-\u003e_IO_read_ptr). The program crash may happen in cases where fp-\u003e_IO_read_ptr is not initialized and hence points to NULL. The buffer under-read requires a special situation where the input character encoding is such that there are overlaps between single byte representations and multibyte representations in that encoding, resulting in spurious matches. The spurious match case is not possible in the standard Unicode character sets.",
           "Severity": "MEDIUM",
@@ -8652,7 +8652,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:f00920e43ec2e782642b3a1926c0d2cae11e77acaac1beaa576381bbbcdff2d6",
+          "Fingerprint": "sha256:c4a5ad34b8fa4743dca43fb7348beff03e4b912f039980fe4db77ab68e34a0e1",
           "Title": "glibc: glibc: Application crash or uninitialized memory read via crafted DNS response",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.0.1 to version 2.43 fail to validate the RDATA content against the RDATA length in a DNS response when processing A6, CERT, LOC, TKEY or TSIG records, which may allow an attacker to craft a DNS response, causing a target application to crash or read uninitialized memory.\n\nThese functions are for application debugging only and hence not in the path of code executed by the DNS resolver.  Further, they have been deprecated since version 2.34 and should not be used by any new applications.  Applications should consider porting away from these interfaces since they may be removed in future versions.",
           "Severity": "MEDIUM",
@@ -8719,7 +8719,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:6c41235ef231b5f35bd31eff0ed8dffb47e50e0b8605055b6ac88d31fbefd175",
+          "Fingerprint": "sha256:fd2fd6119132fd64cf5eff505518ad5c8a8283a5531eb727a66534201bd5a0c2",
           "Title": "glibc: glibc: Out-of-bounds write via TSIG record processing",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.2 and newer fail to enforce the caller-supplied buffer length, and can result in an out-of-bounds write when printing TSIG records.",
           "Severity": "MEDIUM",
@@ -8786,7 +8786,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:0eb7f3a35a034a892004dc03851fda1eecc4a1c5a9cf0538cd09547625966672",
+          "Fingerprint": "sha256:2c4fb67e1632def5a38ffcd3813533ebe31dda4af467da4b20f1c1c63a177eba",
           "Title": "glibc: glibc: Heap Buffer Overflow in `scanf` with `%mc` format specifier and large width",
           "Description": "Calling the scanf family of functions with a %mc (malloc'd character match) in the GNU C Library version 2.7 to version 2.43 with a format width specifier with an explicit width greater than 1024 could result in a one byte heap buffer overflow.",
           "Severity": "MEDIUM",
@@ -8849,7 +8849,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:0d0ef411c58bee2e0e0c1924571f7271585643e0a57a5935430e039a3dfa665b",
+          "Fingerprint": "sha256:c4d85dd23bdcbb1531336514a8a9747dec6d6f5bc8e61cf0b9214921de865b83",
           "Title": "glibc: glibc: Information disclosure or denial of service via ungetwc function with specific wide character encodings",
           "Description": "Calling the ungetwc function on a FILE stream with wide characters encoded in a character set that has overlaps between its single byte and multi-byte character encodings, in the GNU C Library version 2.43 or earlier, may result in an attempt to read bytes before an allocated buffer, potentially resulting in unintentional disclosure of neighboring data in the heap, or a program crash.\n\nA bug in the wide character pushback implementation (_IO_wdefault_pbackfail in libio/wgenops.c) causes ungetwc() to operate on the regular character buffer (fp-\u003e_IO_read_ptr) instead of the actual wide-stream read pointer (fp-\u003e_wide_data-\u003e_IO_read_ptr). The program crash may happen in cases where fp-\u003e_IO_read_ptr is not initialized and hence points to NULL. The buffer under-read requires a special situation where the input character encoding is such that there are overlaps between single byte representations and multibyte representations in that encoding, resulting in spurious matches. The spurious match case is not possible in the standard Unicode character sets.",
           "Severity": "MEDIUM",
@@ -8915,7 +8915,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:24605c621c940fa9aa2ff04f13d8d9ce2e4e07cbdd531227a5eaf9ffdbc194d5",
+          "Fingerprint": "sha256:cc4a85dacb817eee9bbd3ccccfef3c73199e322370c2a704734fec806e101e92",
           "Title": "glibc: glibc: Application crash or uninitialized memory read via crafted DNS response",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.0.1 to version 2.43 fail to validate the RDATA content against the RDATA length in a DNS response when processing A6, CERT, LOC, TKEY or TSIG records, which may allow an attacker to craft a DNS response, causing a target application to crash or read uninitialized memory.\n\nThese functions are for application debugging only and hence not in the path of code executed by the DNS resolver.  Further, they have been deprecated since version 2.34 and should not be used by any new applications.  Applications should consider porting away from these interfaces since they may be removed in future versions.",
           "Severity": "MEDIUM",
@@ -8982,7 +8982,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:15953a3bfd1a60aedfa524ab471142c698130823337aee7de0b314cfedd16ee9",
+          "Fingerprint": "sha256:57ac339da294844ff4e1f0f2c8a2d6b679f02d3d2b345a9bb985d6a1ae102781",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -9010,7 +9010,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:75ca56be8415d413e568cc70381702ff6a7ece649faff53a34df0431543044d1",
+          "Fingerprint": "sha256:94abadf5ef4009c7241c0f2fe19774c0e0e59376ccfe6e827071f74285e6c700",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -9062,7 +9062,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:6e4942e1661b655b6669ffe31a545a3dbb0c8f66cb5ac7bf8061949f6fc5604b",
+          "Fingerprint": "sha256:b179edb7f49d7bb5c4c45ed35d8211a487ea27e7ef729be7402d7c89ee52d9bf",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -9121,7 +9121,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:6a596cf6479a21b38a7d4b21074d59b5328d385d86ca2ea9e54bdcfac5d64377",
+          "Fingerprint": "sha256:7d4a2bd75457b7d3e87029b38355b3a629592e40615912dc83fa5bf9b9ab42a2",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -9174,7 +9174,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:72bcd80bf300c0477ae53bd08a010bb4f129f2957a42d1f43c10a0985efd51f0",
+          "Fingerprint": "sha256:ac21995e9ba6bfd26f85327a61aa753908e55a09d514a7a1e2479bf24a1c8b0b",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -9202,7 +9202,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:b3da5b701e69d2f34e4e61e981e2fbf6ff68d4f7804a3bf23cf2e0a70578d389",
+          "Fingerprint": "sha256:926bd86465f03697aef7311e534d6bf57e1ef5ddb44aeddc88e8ea1bb075aabc",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -9254,7 +9254,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:e6bf8635fe2dcd526493fadfd85edf4d3944f10f7217f16f8cecaf4f3318b521",
+          "Fingerprint": "sha256:45d2820e679b1b76e106e9e9f0b7f27abc5076c5ac97b458941a3f554adb00db",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -9313,7 +9313,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:0099d140e296687afad7a2ba47f9267e6297798e3d8d526e5a78731dbe5d3727",
+          "Fingerprint": "sha256:4b9fa56cee73d5060f0af9e0b71b95015d2febd24f5ab758f9920a20a094bfc3",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -9367,7 +9367,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:e508eca3938e61a49ca5db55a4474c240b522f7af865cd0393dc6eca03c098ee",
+          "Fingerprint": "sha256:ec7319d31aa690b73999f77fea4f9d3fae69eb245391cd18d3092a4c589fc13d",
           "Title": "ncurses: ncurses: Buffer overflow vulnerability may lead to arbitrary code execution.",
           "Description": "The infocmp command-line tool in ncurses before 6.5-20251213 has a stack-based buffer overflow in analyze_string in progs/infocmp.c.",
           "Severity": "HIGH",
@@ -9439,7 +9439,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:631d93d54699180f62fb85d564cf01464f1abf3b0d0e0520f39fe9ffaabdd807",
+          "Fingerprint": "sha256:b1d4f0c1fad8161ac1e0e45df09a3def69acbde5388dad93b8f5139ca68649a5",
           "Title": "linux-pam: Plaintext password recovery via timing discrepancy in pam_userdb module",
           "Description": "Linux-PAM through 1.7.2 contains an observable timing discrepancy (CWE-208) in the pam_userdb module's plaintext-password comparison path in modules/pam_userdb/pam_userdb.c that allows a local or network-adjacent attacker able to repeatedly drive authentication through a calling service to recover the plaintext password of a target account by measuring response-timing differences. The comparison uses strncmp() (or strncasecmp() when PAM_ICASE_ARG is set) preceded by a length-equality check, so the time to reject a candidate depends on the index of the first differing byte and on whether the candidate's length matches the stored password, leaking the password length and individual prefix bytes. The vulnerable path is reached when the administrator configures pam_userdb with crypt=none, with an unrecognized crypt method, or without a crypt= argument, causing the module to store and compare credentials in plaintext.",
           "Severity": "MEDIUM",
@@ -9488,7 +9488,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:600eafaf0f00d2eb3cab2bb3cad9e0cb35b7fd3ca961056a1d0919adf35935fd",
+          "Fingerprint": "sha256:537f6c94ec9cf8109462ecf28db871224a00b93b795ceb42d062ee843142ec8e",
           "Title": "linux-pam: Plaintext password recovery via timing discrepancy in pam_userdb module",
           "Description": "Linux-PAM through 1.7.2 contains an observable timing discrepancy (CWE-208) in the pam_userdb module's plaintext-password comparison path in modules/pam_userdb/pam_userdb.c that allows a local or network-adjacent attacker able to repeatedly drive authentication through a calling service to recover the plaintext password of a target account by measuring response-timing differences. The comparison uses strncmp() (or strncasecmp() when PAM_ICASE_ARG is set) preceded by a length-equality check, so the time to reject a candidate depends on the index of the first differing byte and on whether the candidate's length matches the stored password, leaking the password length and individual prefix bytes. The vulnerable path is reached when the administrator configures pam_userdb with crypt=none, with an unrecognized crypt method, or without a crypt= argument, causing the module to store and compare credentials in plaintext.",
           "Severity": "MEDIUM",
@@ -9537,7 +9537,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:c13d38deb2253a2700b4982206156ee4fd9bea868cf0b0b8535df2676fbe160c",
+          "Fingerprint": "sha256:6574f357abec6cc3f8a4ad04cf4e8a744ef1ce8ad2fcc624b647a1871dd3744a",
           "Title": "linux-pam: Plaintext password recovery via timing discrepancy in pam_userdb module",
           "Description": "Linux-PAM through 1.7.2 contains an observable timing discrepancy (CWE-208) in the pam_userdb module's plaintext-password comparison path in modules/pam_userdb/pam_userdb.c that allows a local or network-adjacent attacker able to repeatedly drive authentication through a calling service to recover the plaintext password of a target account by measuring response-timing differences. The comparison uses strncmp() (or strncasecmp() when PAM_ICASE_ARG is set) preceded by a length-equality check, so the time to reject a candidate depends on the index of the first differing byte and on whether the candidate's length matches the stored password, leaking the password length and individual prefix bytes. The vulnerable path is reached when the administrator configures pam_userdb with crypt=none, with an unrecognized crypt method, or without a crypt= argument, causing the module to store and compare credentials in plaintext.",
           "Severity": "MEDIUM",
@@ -9586,7 +9586,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:ae4e8508af421dd8a4338fa6ba2618b269f931ba98cef8c70607b83f3636a679",
+          "Fingerprint": "sha256:7e92e7950bdd69fc4279e227312a2894948ccb3e192f5999cb3e3da13d5922a8",
           "Title": "linux-pam: Plaintext password recovery via timing discrepancy in pam_userdb module",
           "Description": "Linux-PAM through 1.7.2 contains an observable timing discrepancy (CWE-208) in the pam_userdb module's plaintext-password comparison path in modules/pam_userdb/pam_userdb.c that allows a local or network-adjacent attacker able to repeatedly drive authentication through a calling service to recover the plaintext password of a target account by measuring response-timing differences. The comparison uses strncmp() (or strncasecmp() when PAM_ICASE_ARG is set) preceded by a length-equality check, so the time to reject a candidate depends on the index of the first differing byte and on whether the candidate's length matches the stored password, leaking the password length and individual prefix bytes. The vulnerable path is reached when the administrator configures pam_userdb with crypt=none, with an unrecognized crypt method, or without a crypt= argument, causing the module to store and compare credentials in plaintext.",
           "Severity": "MEDIUM",
@@ -9635,7 +9635,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:579cf81ac8c9175996d084cbcc0d9afc54f72fc0ed63d2edf142c07c0069c659",
+          "Fingerprint": "sha256:39bf5048e1e0a5f48f361bf7c6c2b2aa39e73f44497ca6bdcaba4a120e2d2e0f",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -9663,7 +9663,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:1f4028b6dbab36a40623f73387b405a27688f9397a4bbd6faf804dfc12397705",
+          "Fingerprint": "sha256:aa6088745a8ba3ec39460ba6c0e416f1e8af9ec3a82764a6ab146b2c8864fe16",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -9715,7 +9715,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:5137034be49c61694ae81015b81e48f94015886175c6ff5b6366b399c122b320",
+          "Fingerprint": "sha256:17b2bf1b4ec8447f86e4ffd1134e93ed6b6959229689fec6d56bce33e59d8799",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -9774,7 +9774,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:eb3e30e8a179e7581e1663546a42c006ca7589d7166d1dabf6078da9de975d9c",
+          "Fingerprint": "sha256:6d61c7a0129c2cf85d3360d744dfd6e1b5af3e9edf0cbed9f7e4c6a1dc5f6385",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -9827,7 +9827,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:e160d4cedd91a6f391e6588ed999fab77d6e58b4a7a160f968c7d503d4e9d8f3",
+          "Fingerprint": "sha256:2e27e40510563df240877df995a6cfbb4fbe342081beffa36eb3b7e969a82cea",
           "Title": "SQLite before 3.53.2 contains memory corruption vulnerabilities in the ...",
           "Description": "SQLite before 3.53.2 contains memory corruption vulnerabilities in the FTS5 full-text search extension that allow attackers to cause process crashes, memory exhaustion, or arbitrary code execution by supplying a crafted database with malformed FTS5 page data. Attackers can trigger an out-of-bounds read in fts5LeafSeek() via an attacker-controlled loop bound and a heap buffer overflow write in fts5ChunkIterate() through a crafted continuation page causing an integer underflow, exploitable when an FTS5 MATCH query is executed against the malicious database.",
           "Severity": "MEDIUM",
@@ -9878,7 +9878,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:010bed06df33a8e102f2f1db5edcd0e962c0c8da9117ece9b6572b310c377ffb",
+          "Fingerprint": "sha256:4114538a26f73ed9460620a00c4ea8b7e43b8c446ff5514c9fe742bee7037f86",
           "Title": "SQLite before 3.53.2 contains a heap-based buffer overflow vulnerabili ...",
           "Description": "SQLite before 3.53.2 contains a heap-based buffer overflow vulnerability in the FTS5 full-text search extension that allows attackers to cause a crash or execute arbitrary code by supplying a crafted database with malicious continuation page metadata specifying a szLeaf value smaller than 4. Attackers can trigger an integer underflow in fts5ChunkIterate() causing an inflated remaining byte count during FTS5 MATCH query processing, leading to a heap buffer overflow of attacker-controlled data in applications compiled with SQLITE_ENABLE_FTS5.",
           "Severity": "MEDIUM",
@@ -9929,7 +9929,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:9725dc4143d41451e5ecace6b5cc223bac41d958ecace786ea4e0ecc7fb7a390",
+          "Fingerprint": "sha256:fecef267b028c776128716ad5b9923141869cadb92a15bf44a13e9a3e3f0538a",
           "Title": "A NULL pointer dereference in the SQLite Session Extension in SQLite 3 ...",
           "Description": "A NULL pointer dereference in the SQLite Session Extension in SQLite 3.53.1 and SQLite trunk builds before check-in e807d4e3798efd53 allows an attacker who can supply a malformed changeset blob to cause a denial of service. The issue occurs when sqlite3changeset_apply_v3() applies a corrupt changeset and reaches sqlite3_value_type() with a NULL sqlite3_value pointer.",
           "Severity": "MEDIUM",
@@ -9968,7 +9968,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:4f2728ad9dea5771f7961ef23f48bd21ff6ddd95efc31725c3f49d841f6722f9",
+          "Fingerprint": "sha256:fd72ec4e01c6fe9a2f45b43b045d9368b63291ca3abb113628e2c5fb8f6a00ff",
           "Title": "An issue in SQLite before Fossil check-in 869a51ae84df allows a local  ...",
           "Description": "An issue in SQLite before Fossil check-in 869a51ae84df allows a local attacker to obtain sensitive information via the Session Extension changeset concat/changegroup merge path",
           "Severity": "MEDIUM",
@@ -10008,7 +10008,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:f0b7e5588c5867636a6d0325695c4311c09f30678943e70e863b7e261e8784ab",
+          "Fingerprint": "sha256:bbec7ec797ed3884a67f6f53be309f5fd6408b491a55401bc6d19c98710c5427",
           "Title": "ncurses: ncurses: Buffer overflow vulnerability may lead to arbitrary code execution.",
           "Description": "The infocmp command-line tool in ncurses before 6.5-20251213 has a stack-based buffer overflow in analyze_string in progs/infocmp.c.",
           "Severity": "HIGH",
@@ -10080,7 +10080,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:412dedefbdd9ecd3a5f7c28bb74165c2ceade365160d103d3ea89c537500a324",
+          "Fingerprint": "sha256:e1f366bcc31b54bfd3dfa13e3cf05740b05584df1a2c8c49a173071bbe2e089a",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -10108,7 +10108,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:cda2ec004e539ca884385d4ab817234259ab19638b27b111ca8ab0baecf9020e",
+          "Fingerprint": "sha256:04a5b5051fdc27559b12787428eb7b4316c941d4d293e22a8b565cf9b42b3c0f",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -10160,7 +10160,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:d21d29afb161ebfb66dc38b0e6955c8cf0c4f59cf38ab2a84e31fb92895fd5bd",
+          "Fingerprint": "sha256:0eec6bdcab5b516eab16eba113ddc853d2430610534174c686a2af8c30ac497b",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -10219,7 +10219,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:4b8463884753a552b0b18fde05213fc48bebea0bfd57d07e6ba76a295d150c16",
+          "Fingerprint": "sha256:6428987d2c7f34c5122ad2b1006bf5c6b7eac969c62849ea550cfbe624a72e92",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -10272,7 +10272,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:dd8b6f25c2b732f4d94f717eb3586e1e29bb50af5ad98a15054cb80a477614b9",
+          "Fingerprint": "sha256:6620bc1ac72eb0e778e9e015bce88a115bdc5e49f98c5ef5cca4fc2ffb8ad496",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -10300,7 +10300,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:375784be3757adc046436b07190c88268efed5c48e1d1f17060459f66f119254",
+          "Fingerprint": "sha256:bc062e2b096f5432c4f7e667ac6ca57bf4818ef2b127c92bdd26a9e316fe8930",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -10352,7 +10352,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:8b957dda50a380ffae1109b2413ff3268b4bd3f40a3c63010cfeaf59f8007dc3",
+          "Fingerprint": "sha256:f30939b5eee5d5314cb91903467977c382c1724f66f070e3a470532bafb16b42",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -10411,7 +10411,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:d6c797f778211c992137648d24aaad59608c26803e528feb422a30b12d95cadb",
+          "Fingerprint": "sha256:d805188121159cde3a3c9d20993e4f3d92b2aecae6eacdf8311704e1d41873c8",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -10464,7 +10464,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:a20ca41fc168f1733118df34bac542853d8274b28ab224c28a3fc0d4f008bdbc",
+          "Fingerprint": "sha256:67104f490cff2192005490950c02bf39b259f9845ed1adb95c15fa7fd53c0a1e",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -10492,7 +10492,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:758b3c95a7e737a3d30316ee57123367ab5f86b19c63636b12fefd0934e5f266",
+          "Fingerprint": "sha256:d1a7abb2fb9415fafba641f75b20ef46886578bca858edbb1bc84040cf009c33",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -10544,7 +10544,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:68872d2ef69d08c31e50a7c2dc98cc5f303c39500592ff4aeecbef829a2deb24",
+          "Fingerprint": "sha256:de48d61c6986b99a74d7b6e2f8c99e985a1c5021d2ebb69f814927fbb6fef758",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -10603,7 +10603,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:eee0798a19d933a8c615dd26275c22c5861a03b01e7f2d8fde0638fb0594eb28",
+          "Fingerprint": "sha256:3372dfd420b8f973a00276902ab7daed46ef8d56400af369377f7eb91f89f35c",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -10657,7 +10657,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:a9caa59467c9f2699016444de6b9620a09f6bb40b51ba75c0b4157184e40f769",
+          "Fingerprint": "sha256:480721e4ca501d09851f2223f17200ce8d1e13f0c8aeaab3eb2ced54b1a2c772",
           "Title": "ncurses: ncurses: Buffer overflow vulnerability may lead to arbitrary code execution.",
           "Description": "The infocmp command-line tool in ncurses before 6.5-20251213 has a stack-based buffer overflow in analyze_string in progs/infocmp.c.",
           "Severity": "HIGH",
@@ -10730,7 +10730,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:51cc6a9a0f5948b6b7bb0e785a5d852af443359eabddba81356b962fa488968d",
+          "Fingerprint": "sha256:594f42251ce87880e724ca4fbdcbf0f01868afeef147b7df42b31dbea8a58573",
           "Title": "ncurses: ncurses: Buffer overflow vulnerability may lead to arbitrary code execution.",
           "Description": "The infocmp command-line tool in ncurses before 6.5-20251213 has a stack-based buffer overflow in analyze_string in progs/infocmp.c.",
           "Severity": "HIGH",
@@ -10803,7 +10803,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:0095826ddf60be266f3f9c2a47696b9831c49d3990b2a3e82866475f75d564cb",
+          "Fingerprint": "sha256:f9f9a754b10bc6fdf0e509a52655ad07f5e6eb42d781dec917f31c4c657e478d",
           "Title": "Perl versions through 5.43.9 produce silently incorrect regular expres ...",
           "Description": "Perl versions through 5.43.9 produce silently incorrect regular expression matches when an alternation of more than 65535 fixed string branches is compiled into a trie in Perl_study_chunk.\n\nWhen such branches are combined into a trie, the delta between the first branch and the shared tail is stored in a 16-bit field. A branch count above 65535 overflows the field, and the trie's match decision table is truncated with no warning or error.\n\nA pattern of this shape produces false positive matches (matching strings it should not) and false negative matches (failing to match strings it should). When such a pattern gates an access or filtering decision, the result is wrong.",
           "Severity": "CRITICAL",
@@ -10849,7 +10849,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:1f21df7175bc2ed526c2505db5b18d4a6cc1c1be800da8fb3c9a91ab529b8112",
+          "Fingerprint": "sha256:4bddc10cc3964396003d7e08f223572987468805af30b9ffa1e71f9738565eac",
           "Title": "perl-archive-tar: perl-archive-tar: Path traversal via crafted symlinks allows arbitrary file access",
           "Description": "Archive::Tar versions before 3.08 for Perl extract symlinks with attacker controlled targets outside the extraction directory.\n\n_make_special_file() passes the tar header's linkname to symlink() without validating it against absolute paths or .. segments. The secure-extract mode check that guards regular file extraction does not cover the symlink target.\n\nA subsequent open through the extracted name reads or writes the attacker chosen path.",
           "Severity": "CRITICAL",
@@ -10921,7 +10921,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:41caf0516bda495053fff38284677bb3c51bb4911d3ebbcc35e14b0b828303da",
+          "Fingerprint": "sha256:fcec63fa976f32bcc3cd8d71e389d354e8eb359280ac0c8cf7df5d964cf670a4",
           "Title": "Storable versions before 3.41 for Perl have a signed integer overflow  ...",
           "Description": "Storable versions before 3.41 for Perl have a signed integer overflow when deserializing a crafted SX_HOOK record.\n\nretrieve_hook_common reads a signed 32-bit item count from an SX_HOOK record and calls av_extend with that count plus one. A count of I32_MAX wraps the addition to a negative value.\n\nA crafted blob passed to thaw or retrieve triggers the overflow; av_extend receives the negative count and dies with a panic, terminating the deserialization.",
           "Severity": "CRITICAL",
@@ -10959,7 +10959,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:608114b1fa0bd3768f0dea1666e7f437695fa0a956fcafa5c2326c2a0a80ede9",
+          "Fingerprint": "sha256:71e233be0094afa08ca86914f0a3fbb25a058bcc585e4722b6ff530b1d601afc",
           "Title": "perl: Perl: Heap buffer overflow when compiling regular expressions on 32-bit builds",
           "Description": "Perl versions through 5.43.10 have a heap buffer overflow when compiling regular expressions with a repeated fixed string on 32-bit builds.\n\nPerl_study_chunk in regcomp_study.c checked the size of the joined substring buffer in characters rather than bytes. For a quantified fixed substring with a large minimum count, the byte length mincount * l could overflow SSize_t, producing an undersized SvGROW allocation; the subsequent copy writes past the end of the buffer.\n\nA caller that compiles an attacker-controlled regular expression on a 32-bit perl build triggers a heap buffer overflow at compile time.",
           "Severity": "CRITICAL",
@@ -11016,7 +11016,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:8034921da1047b2eb6bb3b9a16091755520ee4a751385c8cd01e6ebe2c1f854f",
+          "Fingerprint": "sha256:e4e665def9d4b662ec731a74cf72718a532af661997942c4fbe11d0ab5f52674",
           "Title": "perl-Archive-Tar: perl-Archive-Tar: Arbitrary file modification via crafted hardlinks during archive extraction",
           "Description": "Archive::Tar versions before 3.08 for Perl extract hardlinks to attacker controlled paths outside the extraction directory.\n\n_make_special_file() passes the tar header's linkname to link() without validating it against absolute paths or .. segments, creating a hardlink that shares the victim file's inode.\n\nA subsequent write through the extracted name modifies the victim file, and the post-extraction chmod, chown, and utime block in _extract_file() (guarded only against symlinks via -l) applies the tar header's mode, owner, and timestamps to the shared inode during extraction alone.",
           "Severity": "HIGH",
@@ -11070,7 +11070,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:d3a19be7f22afc2654c236119995ff580249e03e4dcf5cb86040ad0055a9e163",
+          "Fingerprint": "sha256:4dead94211c96fc7ca5170e378c2823b0961122ca4f19bb23b5d7c88d89bb30e",
           "Title": "perl-IO-Compress: perl-IO-Compress: Arbitrary code execution via attacker-controlled output glob",
           "Description": "IO::Compress versions before 2.220 for Perl can execute arbitrary code in File::GlobMapper via an attacker-controlled output glob.\n\n_parseOutputGlob() wraps the caller-supplied output glob string in double quotes and stores it in the parser state; _getFiles() then runs the stored expression through eval STRING. A literal double quote in the output glob closes the dquote wrapper, and the characters that follow are evaluated as Perl.\n\nArbitrary Perl in the output glob executes at the calling process's privilege.",
           "Severity": "HIGH",
@@ -11143,7 +11143,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:ce166428a126a3bcdfe9b3229a01ca8d65ba683c64431ad31ad9b22323a6ade1",
+          "Fingerprint": "sha256:0029526d40af31f654395b652012dcd0dbceb64e73ee78e345feced657032b2c",
           "Title": "perl: Perl: Information disclosure via integer overflow in pack/unpack operations",
           "Description": "Perl versions through 5.43.10 have an integer overflow in S_measure_struct leading to an out-of-bounds heap read in pack and unpack.\n\nS_measure_struct adds each item's size times its repeat count to a running total with no overflow check, so a large repeat count in a pack or unpack template wraps the signed SSize_t total negative. The @, X, and x position codes then guard their moves with a signed length comparison that passes when the length is negative, advancing the buffer pointer out of bounds.\n\nA template derived from untrusted input can read heap memory past the buffer and return it to the caller.",
           "Severity": "HIGH",
@@ -11197,7 +11197,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:37bfb6496835e4f7d153e2c8dade8c3510b46fce1b76d1b74189c644a29bc6ec",
+          "Fingerprint": "sha256:09da6c54f8cf150a761122a9f5dd07d7173d85b54e72a9029e59605d29a37df8",
           "Title": "perl-Archive-Tar: perl-Archive-Tar: Denial of Service via crafted tar header with large entry size",
           "Description": "Archive::Tar versions before 3.10 for Perl allow memory exhaustion via attacker controlled entry size field in tar header.\n\n_read_tar() reads each entry's payload with $handle-\u003eread($$data, $block), where $block is derived from the entry's 12-byte size field in the tar header with no upper bound on that value.\n\nA crafted header declaring a multi-gigabyte size causes Perl to allocate a scalar of that size.",
           "Severity": "HIGH",
@@ -11260,7 +11260,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:6ac65c9fc2c6426244e9376aea6e574fa70297582e6a28647dfdc5ac4ab51fb1",
+          "Fingerprint": "sha256:c841bcb3702156bea6f55dade129c7e1d0bc86e67479b025bbf7caad0d16c544",
           "Title": "perl-IO-Compress: perl-IO-Compress: Denial of Service via malformed DOS date in zip header",
           "Description": "IO::Uncompress::Unzip versions before 2.215 for Perl propagate uncaught exception when parsing zip header with malformed DOS date.\n\n_dosToUnixTime() decodes the local-file-header last-modification date field and calls Time::Local::timelocal() without an eval guard. A header whose date field decodes to an out-of-range month, day, or hour causes timelocal() to die.\n\nThe exception propagates out of IO::Uncompress::Unzip-\u003enew($file) where callers expect undef plus $UnzipError.",
           "Severity": "MEDIUM",
@@ -11308,7 +11308,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:8806296a7bd028ccfb0d3ad2d476ced28e3392cd700b2521bd0f2e0b6c073b44",
+          "Fingerprint": "sha256:5b97f02033bf01c0c475c6b14dae3252b9275ac0cbc45b2b9778ddb8589479e7",
           "Title": "perl-Socket: perl-Socket: Information Disclosure due to Out-of-Bounds Read",
           "Description": "Socket versions before 2.041 for Perl have an out-of-bounds heap read.\n\nIn Socket.xs, pack_ip_mreq_source() checks the length of its source argument before the argument is read, so the check tests the byte length carried over from the preceding multiaddr argument instead. Both addresses occupy a 4-byte field, so a valid multiaddr lets a source of any length pass the check, and the source is then copied into the 4-byte imr_sourceaddr field with a fixed-size copy. A source shorter than 4 bytes is not rejected, and the copy reads up to 3 bytes past the end of its buffer.\n\nCalling pack_ip_mreq_source() with a source value shorter than 4 bytes copies adjacent heap memory into the returned packed structure.",
           "Severity": "MEDIUM",
@@ -11356,7 +11356,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:bb03cf4a3fb9a2f1efe8bbbf0a157bd9a1140c694c05bbfbbea20ce73893246b",
+          "Fingerprint": "sha256:8069e85c683e07c1a0a73fc7fa3ee989539d2bcc41f251d06ec9cfc4ae03ecb7",
           "Title": "perl-IO-Compress: perl-IO-Compress: CPU exhaustion via per-byte read loop in fastForward",
           "Description": "IO::Uncompress::Unzip versions before 2.220 for Perl allow CPU exhaustion via per-byte read loop in fastForward.\n\nfastForward() compares length $offset (the digit count of the offset, 1 to 19) against the chunk size $c instead of $offset itself, so $c shrinks from 16 KiB to 1-19 bytes per iteration.\n\nExtracting a named entry from an attacker supplied zip via IO::Uncompress::Unzip-\u003enew($zip, Name =\u003e $target) drives a per-byte read loop scaling with the entry's compressed size, up to the non-Zip64 4 GiB cap.",
           "Severity": "MEDIUM",
@@ -11404,7 +11404,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:d3ff0826215bc53abd0d3c1a5749d71781286460bac5f50fd74e9f4a009131cb",
+          "Fingerprint": "sha256:d32277f484cc358659b1849c3121a21c57c6706359543765b65c5e965d430f6d",
           "Title": "perl-IO-Compress: IO::Compress: Denial of Service in zipdetails CLI tool via malformed Info-ZIP Unix Extra Field",
           "Description": "IO::Compress versions from 2.207 before 2.220 for Perl ship a zipdetails CLI tool that crashes with undefined subroutine on Info-ZIP Unix Extra Field with 8-byte UID or GID.\n\nWhen decode_ux() in bin/zipdetails handles an Info-ZIP Unix Extra Field (tag 0x7875) with UID Size or GID Size set to 8, causing zipdetails to decode an 8-byte UID or GID value, it dispatches through decodeLitteEndian(), which calls a misnamed helper unpackValueQ. The actual function defined in the same file is unpackValue_Q (with underscore); the call raises 'Undefined subroutine \u0026main::unpackValueQ' and the script exits with status 255.\n\nLibrary callers of IO::Compress and IO::Uncompress are not affected; the defect is in the bundled CLI tool.",
           "Severity": "MEDIUM",
@@ -11451,7 +11451,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:62d65adca4e4da75a796edda955dac31823ff55e7ec1fe029d6c9ba1b0b62256",
+          "Fingerprint": "sha256:d572e016ff68d93f0acb5adf831227458dd1423aa04fa563ebb445c104571165",
           "Title": "HTTP::Tiny versions before 0.093 for Perl do not validate CRLF in HTTP ...",
           "Description": "HTTP::Tiny versions before 0.093 for Perl do not validate CRLF in HTTP request lines or control field header values.\n\nThe unvalidated inputs are the method and URI in the request line, the URL host that becomes the `Host:` header, and HTTP/1.1 control data field values.\n\nAn attacker who controls one of these inputs, for example a user supplied URL passed to a webhook or URL fetch endpoint, can inject additional headers and smuggle requests to the upstream server.",
           "Severity": "MEDIUM",
@@ -11488,7 +11488,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:c058495f801fc96748bf55937a1cef7f84d55ccbc8572a38269c654928ff3ffc",
+          "Fingerprint": "sha256:7aaf95e207a499856788883f8ee8256d6648ebd480cb97b535f10c767068ab18",
           "Title": "tar: tar: TOCTOU in incremental dumpdir 'X' rename handling allows restore path escape",
           "Description": "A TOCTOU (Time-of-Check Time-of-Use) vulnerability in GNU tar's incremental dumpdir 'X' rename handling allows a local attacker with write access to a directory being backed up to influence the restore process if the attacker has access to the system where the restore is being performed. During restoration, files or directories may be created, renamed or overwritten outside the intended extraction directory. This could lead to unauthorized file modification or, in some cases, privilege escalation. Exploitation does not require the attacker to modify or craft the archive, and standard backup and restore workflows—including extracting into a newly created directory without using the -P option do not mitigate the issue.",
           "Severity": "MEDIUM",
@@ -11532,7 +11532,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:58360060b834cc72d6f878ba63061d4639ecd587cea12e410a3c2437d4e42fc2",
+          "Fingerprint": "sha256:3f17138642d51c3caea7aa6b13a5832b95311d790e491f01c972a5f7d384f760",
           "Title": "tar: tar: --one-top-level hardlink targets not confined to top-level directory enabling arbitrary file overwrite",
           "Description": "A flaw was found in GNU tar. When extracting an archive with the --one-top-level option, hardlink targets are not confined to the designated top-level directory and may resolve relative to the extraction working directory. A crafted archive can create hardlinks that escape the intended boundary and, when combined with a preexisting symbolic link under the working directory, may allow writing outside that boundary during a single extraction.",
           "Severity": "MEDIUM",
@@ -11577,7 +11577,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:bf5945f77d6e69966b235e03161e13198a750e7696aadb5fc2e21939cdd3c0e9",
+          "Fingerprint": "sha256:0eaec2d217c32d04fd2cb6ebe0dcbb3bfb2113397368de2fa95994fccf64e8cd",
           "Title": "tar: tar: Hidden file injection via crafted archives",
           "Description": "A flaw was found in tar. A remote attacker could exploit this vulnerability by crafting a malicious archive, leading to hidden file injection with fully attacker-controlled content. This bypasses pre-extraction inspection mechanisms, potentially allowing an attacker to introduce malicious files onto a system without detection.",
           "Severity": "MEDIUM",
@@ -11633,7 +11633,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:1318da3c98af2ee705b1b657d5eb58b6980fb14f4432c6ce0664ce4f828a26b6",
+          "Fingerprint": "sha256:40af6ebdc07f385a2f55e17270347ab2ff52b9c89d68d5d23f8615e4242348da",
           "Title": "[Integer Overflow or Wraparound in libblkid/src/partitions/dos.c]",
           "Description": "Package updates are available for Amazon Linux 2023 that fix the following vulnerabilities:\nCVE-2026-53615:\n\tInteger Overflow or Wraparound in libblkid/src/partitions/dos.c\n",
           "Severity": "HIGH",
@@ -11661,7 +11661,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:f55d057bf5fbb8bd87f31b6044c7a2df7c18faa55a0ee84700582c5e141433eb",
+          "Fingerprint": "sha256:2ea1f6b5a96c631c1d9836d061b407ff46e89e5b7d3309b88d75212c7562a6fd",
           "Title": "util-linux: util-linux: heap use-after-free in libblkid nested partition probing",
           "Description": "A flaw was found in the libblkid library of util-linux. During nested partition probing, the BSD, Minix, Solaris x86, and UnixWare partition probers cache a raw pointer to a parent partition entry in a dynamically allocated array. When subsequent partition additions cause the array to be reallocated, this pointer becomes stale, leading to a heap use-after-free read. An attacker who can present a crafted block device image (for example, via USB insertion or a loop-mounted disk image) can trigger this flaw without user interaction, as libblkid is invoked automatically by udev/udisks as root on block-device hot-plug events. This could lead to limited information disclosure or denial of service.",
           "Severity": "MEDIUM",
@@ -11713,7 +11713,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:76a1639405102bec74784c2e6889332e4503ef8e84aec5b53faaa0093e8052ec",
+          "Fingerprint": "sha256:9fc586d83c9d15dba0cbccc9d3e0599ffcde91708fea3a31fa6b57e931239dc5",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -11772,7 +11772,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:291dcdaf92b537cb951f5adcfb359e039a9c932a83b3e2c2b487830e12621191",
+          "Fingerprint": "sha256:84e142ad503c51a3a5ddb5714079f9fc5d0db4c408eb87b8ceb0a81fd8242933",
           "Title": "util-linux: util-linux: Access control bypass due to improper hostname canonicalization",
           "Description": "A flaw was found in util-linux. Improper hostname canonicalization in the `login(1)` utility, when invoked with the `-h` option, can modify the supplied remote hostname before setting `PAM_RHOST`. A remote attacker could exploit this by providing a specially crafted hostname, potentially bypassing host-based Pluggable Authentication Modules (PAM) access control rules that rely on fully qualified domain names. This could lead to unauthorized access.",
           "Severity": "MEDIUM",
@@ -11826,7 +11826,7 @@
             "Name": "Debian Security Tracker",
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
-          "Fingerprint": "sha256:e98e5dfc090e79675e4f3a7cb2af121695995f0e570f985f6507306d81420a0d",
+          "Fingerprint": "sha256:f4cc0bb437c068a1b14d2223b0fb976f3758fd3bf1bc29907d5af933f0a3a8f2",
           "Title": "zlib: zlib: Denial of Service via infinite loop in CRC32 combine functions",
           "Description": "zlib before 1.3.2 allows CPU consumption via crc32_combine64 and crc32_combine_gen64 because x2nmodp can do right shifts within a loop that has no termination condition.",
           "Severity": "MEDIUM",
@@ -11891,7 +11891,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/flask-3.0.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -11907,7 +11907,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/jinja2-3.1.6.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -11923,7 +11923,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/markupsafe-3.0.3.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -11939,7 +11939,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/werkzeug-3.1.8.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -11987,7 +11987,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/blinker-1.9.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12003,7 +12003,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/click-8.4.2.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12019,7 +12019,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/coverage-7.15.3.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12035,7 +12035,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/exceptiongroup-1.3.1.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12083,7 +12083,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/iniconfig-2.3.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12099,7 +12099,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/itsdangerous-2.2.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12260,7 +12260,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/pluggy-1.6.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12276,7 +12276,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/pytest-8.0.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12292,7 +12292,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/pytest_cov-4.1.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12337,7 +12337,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/tomli-2.4.1.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12385,7 +12385,7 @@
             "PSF-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "FilePath": "usr/local/lib/python3.10/site-packages/typing_extensions-4.16.0.dist-info/METADATA",
           "AnalyzedBy": "python-pkg"
@@ -12464,7 +12464,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:a30e447e463c0fd1ab2bbf2b4b8c9f9ab3b188c1aa0c3aa744dc34d3900fa850",
+          "Fingerprint": "sha256:6cff5ace85a00be5db003099ee2066a279a015a69d8b3a7e438b5bc942cd669a",
           "Title": "jaraco.context: jaraco.context: Path traversal via malicious tar archives",
           "Description": "jaraco.context, an open-source software package that provides some useful decorators and context managers, has a Zip Slip path traversal vulnerability in the `jaraco.context.tarball()` function starting in version 5.2.0 and prior to version 6.1.0. The vulnerability may allow attackers to extract files outside the intended extraction directory when malicious tar archives are processed. The strip_first_component filter splits the path on the first `/` and extracts the second component, while allowing `../` sequences. Paths like `dummy_dir/../../etc/passwd` become `../../etc/passwd`. Note that this suffers from a nested tarball attack as well with multi-level tar files such as `dummy_dir/inner.tar.gz`, where the inner.tar.gz includes a traversal `dummy_dir/../../config/.env` that also gets translated to `../../config/.env`. Version 6.1.0 contains a patch for the issue.",
           "Severity": "HIGH",
@@ -12524,7 +12524,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:a3e2f9dc8e0179907f43aeb2d6f782d92420563cbded631672cee745ccb6e08b",
+          "Fingerprint": "sha256:ef3a658fdf24a9214de7f81a55c98ab1edcf7f020b919c8c57066f3c2c7c74db",
           "Title": "pip: Mercurial configuration injectable in repo revision when installing via pip",
           "Description": "When installing a package from a Mercurial VCS URL  (ie \"pip install \nhg+...\") with pip prior to v23.3, the specified Mercurial revision could\n be used to inject arbitrary configuration options to the \"hg clone\" \ncall (ie \"--config\"). Controlling the Mercurial configuration can modify\n how and which repository is installed. This vulnerability does not \naffect users who aren't installing from Mercurial.",
           "Severity": "MEDIUM",
@@ -12604,7 +12604,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:0f07eb8e733cec48477bfd41205a1bc2705b381ded14cfeb3b476a820b0b2b5e",
+          "Fingerprint": "sha256:387c974432ed6dc730b5ae003c619a24b022f2d16f50eb2011061abb6c61116b",
           "Title": "pip: pip missing checks on symbolic link extraction",
           "Description": "When extracting a tar archive pip may not check symbolic links point into the extraction directory if the tarfile module doesn't implement PEP 706.\nNote that upgrading pip to a \"fixed\" version for this vulnerability doesn't fix all known vulnerabilities that are remediated by using a Python version that implements PEP 706.\n\nNote that this is a vulnerability in pip's fallback implementation of tar extraction for Python versions that don't implement PEP 706\nand therefore are not secure to all vulnerabilities in the Python 'tarfile' module. If you're using a Python version that implements PEP 706\nthen pip doesn't use the \"vulnerable\" fallback code.\n\nMitigations include upgrading to a version of pip that includes the fix, upgrading to a Python version that implements PEP 706 (Python \u003e=3.9.17, \u003e=3.10.12, \u003e=3.11.4, or \u003e=3.12),\napplying the linked patch, or inspecting source distributions (sdists) before installation as is already a best-practice.",
           "Severity": "MEDIUM",
@@ -12664,7 +12664,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:61218c0c2a5fd9ba49c8c7d4b61d306df647f2256ace129916f01c930ff84f34",
+          "Fingerprint": "sha256:f71167954a6f6a1f8dd0fad4cd16ecfae206b7b47cb9d51c9aeec9a1b492e96b",
           "Title": "pip: pip: Incorrect file installation due to improper archive handling",
           "Description": "pip handles concatenated tar and ZIP files as ZIP files regardless of filename or whether a file is both a tar and ZIP file. This behavior could result in confusing installation behavior, such as installing \"incorrect\" files according to the filename of the archive. New behavior only proceeds with installation if the file identifies uniquely as a ZIP or tar archive, not as both.",
           "Severity": "MEDIUM",
@@ -12726,7 +12726,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:ff0b9dd63d3ae2ec19e4f1748545e47266068f57ba4290d80fd512e88aa5251e",
+          "Fingerprint": "sha256:eef26743ed89a2a03675bd834852189e5ad95be7eedda8ab13f182d1e701b9ad",
           "Title": "pip: pip: Arbitrary code execution or information disclosure via malicious wheel package installation",
           "Description": "pip prior to version 26.1 would run self-update check functionality after installing wheel files which required importing well-known Python modules names. These module imports were intentionally deferred to increase startup time of the pip CLI. The patch changes self-update functionality to run before wheels are installed to prevent newly-installed modules from being imported shortly after the installation of a wheel package. Users should still review package contents prior to installation.",
           "Severity": "MEDIUM",
@@ -12787,7 +12787,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:428300de9d9244b39510b63a867ba20a6c0d82fab5b643a7f6747b66608614d4",
+          "Fingerprint": "sha256:ca8a061a64af3b5c40f11a837d6517f87639b5906b4872a77d7aa63d732ec65c",
           "Title": "python-pip: Path traversal via malicious entry point name in pip wheel installation allows arbitrary file overwrite",
           "Description": "pip would treat console_scripts and gui_scripts as paths instead of file names without sanitizing the resolved absolute path to the installation directory, leading to entry points being installed outside the installation directory.",
           "Severity": "MEDIUM",
@@ -12890,7 +12890,7 @@
           "FixedVersion": "9.0.3",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:05c3400063591f3594802aa7a2253cf936d56653e8af3ac61f081038d73148b7"
+            "DiffID": "sha256:ee80034223862f1bb22760ca7bd35edf29dcf89d7229cc320cc459761a82e006"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-71176",
@@ -12899,7 +12899,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:c5a89e147d18cf56d5f087f68170eedcb4d443754ba1624dee5af6673eb7e705",
+          "Fingerprint": "sha256:baa6dcb9376e6a3e5eec8daaae7b32e335863164346a493e686df71b437c6057",
           "Title": "pytest: pytest: Denial of Service or Privilege Escalation via insecure temporary directory handling",
           "Description": "pytest through 9.0.2 on UNIX relies on directories with the /tmp/pytest-of-{user} name pattern, which allows local users to cause a denial of service or possibly gain privileges.",
           "Severity": "MEDIUM",
@@ -12959,7 +12959,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:044b2c199bf293a3e307aa70f86acdfef79ffda592efba14d9e27c7c00021ee2",
+          "Fingerprint": "sha256:426bac44f51963eb0c4b0e982dd80834385c5b79bca771640e70b5ddf591a8fd",
           "Title": "setuptools: setuptools: MANIFEST.in exclusion bypass in sdist via Unicode normalization collision (NFC/NFD)",
           "Description": "setuptools is a package that allows users to download, build, install, upgrade, and uninstall Python packages. Prior to 83.0.0, FileList applied MANIFEST.in exclude, global-exclude, recursive-exclude, and prune directives by matching compiled glob patterns against on-disk file names without Unicode normalization, so on macOS APFS or HFS+ an NFD file name could bypass an NFC exclusion rule and be packed into a source distribution. This issue is fixed in version 83.0.0.",
           "Severity": "MEDIUM",
@@ -13023,7 +13023,7 @@
             "Name": "GitHub Security Advisory pip",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
-          "Fingerprint": "sha256:3d3ceb85cc900d501b29a1be6494755a49c52fc03eeecbe3c09a1e3ab6077065",
+          "Fingerprint": "sha256:fcda64b947fbf9f546e795a2d7e63b4802dfd9615967998d47423ad69ea49466",
           "Title": "wheel: wheel: Privilege Escalation or Arbitrary Code Execution via malicious wheel file unpacking",
           "Description": "wheel is a command line tool for manipulating Python wheel files, as defined in PEP 427. In versions 0.40.0 through 0.46.1, the unpack function is vulnerable to file permission modification through mishandling of file permissions after extraction. The logic blindly trusts the filename from the archive header for the chmod operation, even though the extraction process itself might have sanitized the path. Attackers can craft a malicious wheel file that, when unpacked, changes the permissions of critical system files (e.g., /etc/passwd, SSH keys, config files), allowing for Privilege Escalation or arbitrary code execution by modifying now-writable scripts. This issue has been fixed in version 0.46.2.",
           "Severity": "HIGH",
