@@ -66,13 +66,13 @@ jobs:
           SONAR_HOST_URL: "https://sonarcloud.io"
         with:
           args: >
-            -Dsonar.projectKey=xdr-project
-            -Dsonar.organization=double-script
+            -Dsonar.projectKey=mrrobot7781_project-xdr
+            -Dsonar.organization=mrrobot7781
             -Dsonar.sources=.
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
   # -------------------------------------------------------------
-  # Job 3: Build, Scan & Push Docker Image to Docker Hub
+  # Job 3: Build, Scan & Push Docker Images to Docker Hub
   # -------------------------------------------------------------
   docker-build-push:
     name: Build, Scan & Push to Docker Hub
@@ -92,20 +92,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Employee Image
+      - name: Build Docker Images locally for Scanning
         run: |
-          docker build \
-          -f Dockerfile \
-          -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }} \
-          -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest \
-          .
-      - name: Build Dashboard Image
-        run: |
-          docker build \
-          -f Dockerfile.dashboard \
-          -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:${{ github.sha }} \
-          -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:latest \
-          .
+          # 1. Build the main application
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest .
+          
+          # 2. Build the dashboard application (Using 'astra-dashboard' to match deployment yaml)
+          docker build -f Dockerfile.dashboard -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:latest .
 
       - name: Run Trivy Vulnerability Scan
         uses: aquasecurity/trivy-action@master
@@ -122,15 +115,18 @@ jobs:
           name: trivy-security-report
           path: trivy-results.json
 
-      - name: Push Image to Docker Hub
+      - name: Push Images to Docker Hub
         run: |
+          # Push Main App
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest
+          
+          # Push Dashboard App
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:latest
 
   # -------------------------------------------------------------
-  # Job 4: DAST Scan via Direct Docker Container (Bypasses Broken Action)
+  # Job 4: DAST Scan via Direct Docker Container
   # -------------------------------------------------------------
   dast-scan:
     name: OWASP ZAP DAST Scan
@@ -180,6 +176,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         
+      # 👇 IMPORTANT: Downloading and sending Trivy JSON to EC2 for dashboard 👇
       - name: Download Trivy Artifact
         uses: actions/download-artifact@v4
         with:
@@ -212,14 +209,13 @@ jobs:
             kubectl apply -f dashboard-deployment.yaml
             kubectl apply -f k8s/employee-app.yaml
 
-            # Fixed Hardcoded Docker Hub Username
-            docker pull mrrobot7781/astra-xdr-app:latest || true
-            docker pull mrrobot7781/astra-dashboard:latest || true
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest || true
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:latest || true
 
             kubectl rollout restart deployment/employee-app
             kubectl rollout restart deployment/astra-xdr-dashboard
 
-            # Non-blocking status check (Prevents CI/CD crashes if pod is slow)
+            # 👇 Non-blocking rollouts 👇
             kubectl rollout status deployment/employee-app --timeout=30s || true
             kubectl rollout status deployment/astra-xdr-dashboard --timeout=30s || true
 
@@ -243,3 +239,42 @@ jobs:
 
             echo "===== EMPLOYEE LOG ====="
             cat /tmp/pf-employee.log || true
+
+  # -------------------------------------------------------------
+  # Job 6: AI Remediation Summary
+  # -------------------------------------------------------------
+  ai-remediation:
+    name: Generate AI Security Summary
+    runs-on: ubuntu-latest
+    needs: [sonarqube, dast-scan, cd-deploy-k8s] 
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Google Gen AI SDK
+        run: pip install -q -U google-genai requests 
+
+      - name: Download Trivy Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-security-report
+
+      - name: Download ZAP Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zap-dast-security-report
+
+      - name: Create Dummy Sonar Report
+        run: echo "{}" > sonar-report.json
+
+      - name: Generate and Publish AI Summary
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
+        run: |
+          python scripts/ai_remediation.py
