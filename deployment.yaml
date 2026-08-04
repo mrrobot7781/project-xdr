@@ -18,6 +18,6 @@ spec:
       containers:
         - name: employee-app
           image: mrrobot7781/astra-xdr-app:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
