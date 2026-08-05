@@ -64,15 +64,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
-        with:
-          args: >
-            -Dsonar.projectKey=mrrobot7781_project-xdr
-            -Dsonar.organization=mrrobot7781
-            -Dsonar.sources=.
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.coverage.exclusions=**/tests/**,**/scripts/**,**/test_*.py,app.py
-            -Dsonar.exclusions=**/tests/**,**/scripts/**,**/.github/**
-            -Dsonar.qualitygate.wait=true
 
   # -------------------------------------------------------------
   # Job 3: Build, Scan & Push Docker Images to Docker Hub
