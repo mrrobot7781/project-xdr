@@ -222,4 +222,3 @@ jobs:
             kubectl rollout status deployment/astra-xdr-dashboard --timeout=30s || true
 
             echo "Deployment completed successfully. NodePort handles traffic automatically."
-
