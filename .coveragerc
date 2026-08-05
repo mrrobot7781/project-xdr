@@ -1,0 +1,9 @@
+[run]
+source = .
+omit = 
+    tests/*
+    **/tests/*
+    scripts/*
+    dashboard_app.py
+    *__init__*
+    *config*
