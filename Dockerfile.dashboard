@@ -1,6 +1,30 @@
+# Use a lightweight official Python runtime
 FROM python:3.10-slim
+
+# Prevent Python from writing .pyc files and enable unbuffered logging
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
-RUN pip install flask kubernetes
+
+# Copy dashboard app file first
 COPY dashboard_app.py .
+
+# Install locked dependencies safely using pre-compiled binary wheels only
+RUN pip install --no-cache-dir --only-binary :all: flask==3.0.3 kubernetes==29.0.0 || \
+    pip install --no-cache-dir flask==3.0.3 kubernetes==29.0.0
+
+# Create a non-privileged system user and group
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Change ownership of the working directory to the non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to the non-privileged user
+USER appuser
+
+# Expose port 5000
 EXPOSE 5000
+
+# Run the application
 CMD ["python", "dashboard_app.py"]
