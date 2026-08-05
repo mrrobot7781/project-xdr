@@ -217,7 +217,7 @@ jobs:
             kubectl rollout restart deployment/employee-app
             kubectl rollout restart deployment/astra-xdr-dashboard
 
-            # 👇Non-blocking rollouts 👇
+            # 👇 Non-blocking rollouts 👇
             kubectl rollout status deployment/employee-app --timeout=30s || true
             kubectl rollout status deployment/astra-xdr-dashboard --timeout=30s || true
 
