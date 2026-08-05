@@ -64,6 +64,13 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
+        with:
+          args: >
+            -Dsonar.projectKey=mrrobot7781_project-xdr
+            -Dsonar.organization=mrrobot7781
+            -Dsonar.sources=.
+            -Dsonar.exclusions=**/tests/**,**/scripts/**,**/.github/**
+            -Dsonar.qualitygate.wait=true
 
   # -------------------------------------------------------------
   # Job 3: Build, Scan & Push Docker Images to Docker Hub
@@ -91,7 +98,7 @@ jobs:
           # 1. Build the main application
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest .
           
-          # 2. Build the dashboard application (Using 'astra-dashboard' to match deployment yaml)
+          # 2. Build the dashboard application
           docker build -f Dockerfile.dashboard -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:latest .
 
       - name: Run Trivy Vulnerability Scan
@@ -111,11 +118,8 @@ jobs:
 
       - name: Push Images to Docker Hub
         run: |
-          # Push Main App
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest
-          
-          # Push Dashboard App
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:latest
 
@@ -170,7 +174,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         
-      # 👇 IMPORTANT: Downloading and sending Trivy JSON to EC2 for dashboard 👇
       - name: Download Trivy Artifact
         uses: actions/download-artifact@v4
         with:
@@ -193,24 +196,16 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             export KUBECONFIG=/home/ubuntu/.kube/config
-
             cd /home/ubuntu/project-xdr
-
             git pull origin main
-
             kubectl apply -f rbac.yaml
             kubectl apply -f deployment.yaml
             kubectl apply -f dashboard-deployment.yaml
             kubectl apply -f k8s/employee-app.yaml
-
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/astra-xdr-app:latest || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/astra-dashboard:latest || true
-
             kubectl rollout restart deployment/employee-app
             kubectl rollout restart deployment/astra-xdr-dashboard
-
-            # 👇 Non-blocking rollouts 👇
             kubectl rollout status deployment/employee-app --timeout=30s || true
             kubectl rollout status deployment/astra-xdr-dashboard --timeout=30s || true
-
-            echo "Deployment completed successfully. NodePort handles traffic automatically."
+            echo "Deployment completed successfully."
