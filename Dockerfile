@@ -14,8 +14,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY app.py .
 
+# Create a non-privileged system user and group
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Change ownership of the working directory to the non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to the non-privileged user
+USER appuser
+
 # Expose port 5000
 EXPOSE 5000
 
-# Run using Gunicorn (or simple app.py entrypoint)
+# Run the application
 CMD ["python", "app.py"]
