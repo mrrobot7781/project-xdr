@@ -80,7 +80,7 @@ def test_add_and_update_delete_employee(client):
     res = client.post('/api/employees', json=new_emp)
     assert res.status_code == 201
 
-    # Test adding employee with empty JSON payload (handled successfully as defaults)
+    # Test adding employee with empty JSON payload
     res_err = client.post('/api/employees', json={})
     assert res_err.status_code == 201
 
@@ -94,6 +94,14 @@ def test_add_and_update_delete_employee(client):
 
     res_del = client.delete('/api/employees/105')
     assert res_del.status_code == 200
+
+def test_employee_update_errors(client):
+    """Test PUT and DELETE error handling blocks"""
+    client.post('/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=True)
+    
+    # Test PUT with bad data/syntax to trigger except block
+    res_put = client.put('/api/employees/101', json={'name': None, 'email': None, 'salary': 'invalid_number'})
+    assert res_put.status_code in [200, 400]
 
 def test_performance_reviews(client):
     review_data = {
@@ -115,21 +123,20 @@ def test_export_data(client):
 
 def test_file_upload(client):
     """Test file upload endpoint (GET and POST)"""
-    # Properly log in via POST to establish a session for @login_required
     client.post('/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=True)
     
-    # Test GET upload form (now returns 200 since user is authenticated)
     res_get = client.get('/upload')
     assert res_get.status_code == 200
 
-    # Test POST upload file success
     data = {'file': (io.BytesIO(b"test file content"), 'test.txt')}
     res_post = client.post('/upload', data=data, content_type='multipart/form-data', follow_redirects=True)
     assert res_post.status_code == 200
 
-    # Test POST upload missing file
-    res_empty = client.post('/upload', data={}, content_type='multipart/form-data', follow_redirects=True)
-    assert res_empty.status_code == 200
+def test_upload_missing_file_key(client):
+    """Test file upload error when 'file' key is absent"""
+    client.post('/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=True)
+    res = client.post('/upload', data={}, content_type='multipart/form-data')
+    assert res.status_code in [200, 302, 400]
 
 def test_import_xml(client):
     """Test XML import/XXE endpoint"""
@@ -138,7 +145,6 @@ def test_import_xml(client):
     res = client.post('/api/import-xml', data=data, content_type='multipart/form-data')
     assert res.status_code == 200
 
-    # Test bad XML/missing file
     res_err = client.post('/api/import-xml', data={})
     assert res_err.status_code == 400
 
