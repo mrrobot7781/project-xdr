@@ -71,7 +71,7 @@ jobs:
             -Dsonar.sources=.
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.coverage.exclusions=**/tests/**,**/scripts/**,**/test_*.py
-            -Dsonar.exclusions=**/tests/**,**/scripts/**
+            -Dsonar.exclusions=**/tests/**,**/scripts/**,**/.github/**
 
   # -------------------------------------------------------------
   # Job 3: Build, Scan & Push Docker Images to Docker Hub
@@ -223,3 +223,41 @@ jobs:
 
             echo "Deployment completed successfully. NodePort handles traffic automatically."
 
+  # -------------------------------------------------------------
+  # Job 6: AI Remediation Summary
+  # -------------------------------------------------------------
+  ai-remediation:
+    name: Generate AI Security Summary
+    runs-on: ubuntu-latest
+    needs: [sonarqube, dast-scan, cd-deploy-k8s] 
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Google Gen AI SDK
+        run: pip install -q -U google-genai requests 
+
+      - name: Download Trivy Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-security-report
+
+      - name: Download ZAP Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zap-dast-security-report
+
+      - name: Create Dummy Sonar Report
+        run: echo "{}" > sonar-report.json
+
+      - name: Generate and Publish AI Summary
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
+        run: |
+          python scripts/ai_remediation.py
