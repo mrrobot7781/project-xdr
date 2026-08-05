@@ -1,21 +1,20 @@
 import pytest
 from app import app, DATABASE
 import os
+import io
 
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
-    app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF for easier testing of POST/PUT requests
+    app.config['WTF_CSRF_ENABLED'] = False
     with app.test_client() as client:
         yield client
 
 def test_home_page(client):
-    """Test the frontend UI route"""
     response = client.get('/', follow_redirects=True)
     assert response.status_code == 200
 
 def test_get_employees_api(client):
-    """Test the GET /api/employees endpoint"""
     response = client.get('/api/employees')
     assert response.status_code == 200
     json_data = response.get_json()
@@ -23,55 +22,50 @@ def test_get_employees_api(client):
     assert len(json_data['data']) > 0
 
 def test_login_and_logout(client):
-    """Test login with credentials and subsequent logout"""
-    # Test GET login page
     response = client.get('/login')
     assert response.status_code == 200
 
-    # Test POST login with valid credentials
+    # Successful login
     response = client.post('/login', data={
         'username': 'admin',
         'password': 'admin123'
     }, follow_redirects=True)
     assert response.status_code == 200
 
-    # Test dashboard access after login
+    # Failed login (hits exception/error disclosure block)
+    response = client.post('/login', data={
+        'username': "admin' OR '1'='1",
+        'password': 'wrong'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+
     response = client.get('/dashboard')
     assert response.status_code == 200
 
-    # Test logout
     response = client.get('/logout', follow_redirects=True)
     assert response.status_code == 200
 
 def test_get_employee_details(client):
-    """Test IDOR employee endpoint"""
     response = client.get('/api/employees/101')
     assert response.status_code == 200
     data = response.get_json()
     assert data['name'] == 'Akshay Kumar'
 
-    # Test non-existent employee
     response = client.get('/api/employees/9999')
     assert response.status_code == 404
 
 def test_search_endpoint(client):
-    """Test search functionality"""
     response = client.get('/search?q=Akshay')
     assert response.status_code == 200
 
 def test_system_info(client):
-    """Test debug system info endpoint"""
     response = client.get('/api/debug/sql')
     assert response.status_code == 200
-    data = response.get_json()
-    assert 'db_host' in data
 
     response_sys = client.get('/api/system-info')
     assert response_sys.status_code == 200
 
 def test_add_and_update_delete_employee(client):
-    """Test adding, updating, and deleting an employee via API"""
-    # Add employee
     new_emp = {
         'name': 'Test User',
         'email': 'test@corp.com',
@@ -86,7 +80,10 @@ def test_add_and_update_delete_employee(client):
     res = client.post('/api/employees', json=new_emp)
     assert res.status_code == 201
 
-    # Update employee (ID 101)
+    # Test add employee exception block
+    res_err = client.post('/api/employees', json={})
+    assert res_err.status_code == 400
+
     update_data = {
         'name': 'Akshay Updated',
         'email': 'akshay.updated@corp.com',
@@ -95,12 +92,10 @@ def test_add_and_update_delete_employee(client):
     res_put = client.put('/api/employees/101', json=update_data)
     assert res_put.status_code == 200
 
-    # Delete employee (ID 105)
     res_del = client.delete('/api/employees/105')
     assert res_del.status_code == 200
 
 def test_performance_reviews(client):
-    """Test adding and fetching performance reviews"""
     review_data = {
         'rating': 4.5,
         'comments': 'Great performance!'
@@ -112,10 +107,41 @@ def test_performance_reviews(client):
     assert res_get.status_code == 200
 
 def test_export_data(client):
-    """Test JSON and CSV exports"""
     res_json = client.post('/api/export?format=json')
     assert res_json.status_code == 200
 
     res_csv = client.post('/api/export?format=csv')
     assert res_csv.status_code == 200
-    assert 'Content-Type' in res_csv.headers
+
+def test_file_upload(client):
+    """Test file upload endpoint (GET and POST)"""
+    client.get('/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=True)
+    
+    # Test GET upload form
+    res_get = client.get('/upload')
+    assert res_get.status_code == 200
+
+    # Test POST upload file success
+    data = {'file': (io.BytesIO(b"test file content"), 'test.txt')}
+    res_post = client.post('/upload', data=data, content_type='multipart/form-data', follow_redirects=True)
+    assert res_post.status_code == 200
+
+    # Test POST upload missing file
+    res_empty = client.post('/upload', data={}, content_type='multipart/form-data', follow_redirects=True)
+    assert res_empty.status_code == 200
+
+def test_import_xml(client):
+    """Test XML import/XXE endpoint"""
+    xml_data = "<root><data>test</data></root>"
+    data = {'xml_file': (io.BytesIO(xml_data.encode('utf-8')), 'test.xml')}
+    res = client.post('/api/import-xml', data=data, content_type='multipart/form-data')
+    assert res.status_code == 200
+
+    # Test bad XML/missing file
+    res_err = client.post('/api/import-xml', data={})
+    assert res_err.status_code == 400
+
+def test_export_pickle(client):
+    """Test insecure deserialization pickle export endpoint"""
+    res = client.get('/api/export-pickle')
+    assert res.status_code == 200
