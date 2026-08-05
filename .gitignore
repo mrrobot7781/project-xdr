@@ -1,1 +1,37 @@
-minikube-linux-amd64
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+env/
+venv/
+
+# Testing & Coverage Reports
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Security Scans & Reports
+trivy-results.json
+report_json.json
+report_md.md
+report_html.html
+
+# Editor & Swap Files (jaise .swp jo list mein dikh rahe hain)
+*.swp
+*.swo
+.DS_Store
+
+# Temporary Database / Uploads
+/tmp/
+*.db
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+coverage.xml
+trivy-results.json
+*.swp
+*.db
